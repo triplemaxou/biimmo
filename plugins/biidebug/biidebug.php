@@ -80,15 +80,15 @@ if (get_option("bii_disallow_emojis")) {
 }
 add_action("bii_options_title", function() {
 	?>
-	<li role="presentation" class="hide-relative active hide-publier" data-relative="pl-Informations"><i class="fa fa-info"></i> Informations</li>
+	<li role="presentation" class="hide-relative hide-publier" data-relative="pl-Informations"><i class="fa fa-info"></i> Informations</li>
 	<li role="presentation" class="hide-relative " data-relative="pl-Biidebug"><i class="fa fa-cogs"></i> Biidebug</li>
 	<li role="presentation" class="hide-relative hide-publier" data-relative="pl-Shortcodes"><i class="fa fa-cog"></i> Shortcodes</li>
 	<?php
-}, 1);
+}, 2);
 
 add_action("bii_options", function() {
 	?>
-	<div class="col-xxs-12 pl-Informations bii_option">
+	<div class="col-xxs-12 pl-Informations bii_option hidden">
 		<table>
 			<?php do_action("bii_informations"); ?>				
 		</table>
@@ -101,6 +101,7 @@ add_action("bii_options", function() {
 		bii_makestuffbox("bii_xxsmall_width", "Pixels maximum xxs", "number", "col-xxs-12 col-sm-6 col-md-3");
 		bii_makestuffbox("bii_ipallowed", "Adresse IP de débug", "text", "col-xxs-12 col-sm-6 col-md-3");
 		?>
+		<div class='clearfix'></div>
 	</div>
 	<div class="col-xxs-12 pl-Shortcodes bii_option hidden">
 		<div class="col-xxs-12">
@@ -117,7 +118,7 @@ add_action("bii_options", function() {
 		</div>
 	</div>
 	<?php
-}, 1);
+}, 2);
 
 add_action("bii_options_submit", function() {
 	$tableaucheck = ["bii_medium_width", "bii_small_width", "bii_xsmall_width", "bii_xxsmall_width"];

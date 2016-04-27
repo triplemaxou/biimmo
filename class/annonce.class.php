@@ -98,7 +98,7 @@ class annonce extends bii_items {
 //			pre($liste,"red");
 			}
 			return $liste;
-		}else{
+		} else {
 			return [];
 		}
 	}
@@ -233,12 +233,13 @@ class annonce extends bii_items {
 	public function type_bien() {
 		return $this->type_bien;
 	}
+
 	public function article_type_bien(&$defini = "ce", &$indefini = "un") {
 		$tb = strtolower($this->type_bien);
-		if($tb == "appartement" || $tb == "immeuble"){
+		if ($tb == "appartement" || $tb == "immeuble") {
 			$defini = "cet";
 		}
-		if($tb == "maison"){
+		if ($tb == "maison") {
 			$defini = "cette";
 			$indefini = "une";
 		}
@@ -471,7 +472,7 @@ class annonce extends bii_items {
 
 	static function getListeProprietes() {
 		$array = array(
-//			"id" => "id",
+			"id" => "id",
 			"idGlobal" => "identifiant",
 			"id_post" => "Lien vers le post",
 			"titre" => "titre",
@@ -484,6 +485,25 @@ class annonce extends bii_items {
 //			"ascenseur" => "ascenseur",
 			"taxonomy_features" => "Taxonomies",
 			"is_archive" => "archivée",
+			"purge_image" => "purger les images",
+		);
+		return $array;
+	}
+	
+	static function getListeProprietesFormEdit() {
+		$array = array(
+			"id" => "id",
+			"idGlobal" => "identifiant",
+			"id_post" => "Lien vers le post",
+			"titre" => "titre",
+			"type_transaction" => "Type de transaction",
+			"type_bien" => "Type de bien",
+			"ville" => "Ville",
+			"code_insee" => "Insee",
+			"dateCreation" => "Créée le",
+			"date_maj" => "Modifiée le",
+//			"ascenseur" => "ascenseur",
+//			"taxonomy_features" => "Taxonomies",
 		);
 		return $array;
 	}
@@ -640,70 +660,69 @@ class annonce extends bii_items {
 		}
 	}
 
-	public function departement(){
+	public function departement() {
 		$insee = $this->code_insee;
 		$dept = "";
-		if($insee){
-			$dept = $insee[0].$insee[1];
-			if($dept == '97'){
+		if ($insee) {
+			$dept = $insee[0] . $insee[1];
+			if ($dept == '97') {
 				$dept .= $insee[2];
 			}
 		}
 		return $dept;
 	}
-	
-	public function departement_nom(&$article = "le"){
+
+	public function departement_nom(&$article = "le") {
 		$nom = "";
 		$dept = $this->departement();
-		if($dept){
-			if($dept == 14){
+		if ($dept) {
+			if ($dept == 14) {
 				$dept = "Calvados ($dept)";
 			}
-			if($dept == 27){
+			if ($dept == 27) {
 				$dept = "Eure ($dept)";
 				$article = "l'";
 			}
-			if($dept == 76){
+			if ($dept == 76) {
 				$dept = "Seine-Maritime ($dept)";
 				$article = "la";
 			}
 		}
 		return $dept;
 	}
-	
-	public function metaDescription(){
+
+	public function metaDescription() {
 		$name = get_bloginfo("name");
 		$ce = "ce";
 		$article = "le";
 		$type_bien = "un bien";
-		if($this->type_bien()){
+		if ($this->type_bien()) {
 			$type_bien = $this->type_bien();
 			$this->article_type_bien($ce);
 			$type_bien = "$ce $type_bien";
 		}
 		$surface = "";
-		if($this->surface()){
-			$surface = " de ".$this->surface_string();
+		if ($this->surface()) {
+			$surface = " de " . $this->surface_string();
 		}
 		$type_trans = "";
-		if($this->type_transaction()){
-			$type_trans = " en ".$this->type_transaction();
+		if ($this->type_transaction()) {
+			$type_trans = " en " . $this->type_transaction();
 		}
 		$departement = "";
-		if($this->departement_nom()){
+		if ($this->departement_nom()) {
 			$dept = $this->departement_nom($article);
 			$departement = " dans $article $dept";
 		}
 		$desc = "$name vous propose $type_bien$surface$type_trans$departement";
 		return $desc;
-		
 	}
-	
+
 	public function map_postMeta() {
 		$name = static::themename();
 		$method_name = "map_postMeta_$name";
 		$array = $this->$method_name();
-		
+
 		$array["_yoast_wpseo_metadesc"] = $this->metaDescription();
 		return $array;
 	}
@@ -744,6 +763,12 @@ class annonce extends bii_items {
 		}
 		if ($this->GES()) {
 			$arr["GES"] = "Classe " . $this->classeGES() . " (" . $this->GES() . " kgeqCO2/m2/an)";
+		}
+		if ($this->taxefonciere()) {
+			$arr["Taxe Foncière"] = $this->taxefonciere() . " €";
+		}
+		if ($this->coprocharges()) {
+			$arr["Charges de Copropriété"] = $this->coprocharges() . " €";
 		}
 		if ($this->lienVisiteVirtuelle()) {
 			$lien = $this->lienVisiteVirtuelle();
@@ -1080,7 +1105,7 @@ class annonce extends bii_items {
 		if ((bool) $photos) {
 			$attid1 = 1183;
 			$i = 1;
-			
+
 			foreach ($photos as $photo) {
 //				echo " photo : $photo ";
 				$ai = new annonce_image();
@@ -1090,15 +1115,14 @@ class annonce extends bii_items {
 				$ai->updateChamps(["id_annonce" => $id, "photo" => $photo, "alt" => "$alt photo $i", "year" => $year, "month" => $month]);
 				$attid = $ai->addAttachement($item->id_post);
 				postmeta::add($item->id_post, "REAL_HOMES_property_images", $attid);
-				
+
 				if (strpos($photo, "-1") !== false && strpos($photo, "-10") === false) {
 					$ai1 = $ai;
 					$attid1 = $ai1->attach_id();
-					
 				}
 				++$i;
 			}
-			delete_post_thumbnail( $item->id_post );
+			delete_post_thumbnail($item->id_post);
 			set_post_thumbnail($item->id_post, $attid1);
 			if ($item->nouveaute) {
 				postmeta::add($item->id_post, "REAL_HOMES_slider_image", $attid1);
@@ -1106,8 +1130,8 @@ class annonce extends bii_items {
 			if ($item->coupdecoeur) {
 				postmeta::add($item->id_post, "REAL_HOMES_attachments", $attid1);
 			}
-			
-			
+
+
 			unset($ai);
 			unset($ai1);
 		}
@@ -1175,10 +1199,17 @@ class annonce extends bii_items {
 			$this->updateChamps(time(), "date_maj");
 		}
 	}
-	
-	public function purgeImages(){
-		$where = "id_annonce = '" . $this->idGlobal() . "'";
+
+	public function purgeImages() {
+		$where = "id_annonce = '" . $this->id . "'";
 		$liste_id = annonce_image::all_id($where);
+		pre($liste_id);
+		foreach ($liste_id as $id_image) {
+			$image = new annonce_image($id_image);
+			$image->purge();
+		}
+		annonce_image::deleteFromAnnonce($this->id);
+		$this->insertPostMeta();
 	}
 
 	public function categorieOffre_ligneIA() {
@@ -1265,6 +1296,23 @@ class annonce extends bii_items {
 			}
 //			echo $this->have("ascenseur");
 			?>
+		</td>
+		<?php
+	}
+
+	public function purge_image() {
+		
+	}
+
+	public function purge_image_ligneIA() {
+		?>
+		<td class="statut"> 
+			<button class="btn btn-warning purgeimages" data-id="<?php echo $this->id; ?>" >
+				<span class="fa-stack">
+					<i class="fa fa-picture-o fa-stack-1x"></i>
+					<i class="fa fa-ban fa-stack-2x text-danger"></i>
+				</span>
+			</button>
 		</td>
 		<?php
 	}

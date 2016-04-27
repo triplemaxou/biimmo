@@ -187,6 +187,23 @@ $nb_attr = $nom_classe::nbAttr();
 			jQuery(".pict").hide();
 			jQuery(".legende").hide();
 
+			jQuery(".purgeimages").on("click",function(e){
+				e.preventDefault();
+				if(confirm("Vous allez supprimmer toutes les images attachées à ce bien. Voulez vous continuer ?")){
+					jQuery.ajax({
+					url: ajaxurl,
+					data: {
+						'action': 'bii_ajax_purge_pictures',
+						'id': jQuery(this).attr("data-id")
+					},
+					dataType: 'html',
+					success: function (reponse) {
+						console.log("Images supprimmées");
+					}
+				});
+				}
+			});
+
 			jQuery("#likeaform").keypress(function (e) {
 				if (e.which == 13) {
 					jQuery("#valform").trigger("click");

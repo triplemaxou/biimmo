@@ -34,7 +34,7 @@ class template {
 //		wp_enqueue_style('bootstrap', plugins_url("vazard") . '/css/bootstrap.css', array(), false);
 //		wp_enqueue_style('bootstrap', plugins_url("vazard") . '/css/bootstrap-1.css', array(), false);
 //		// Loads font awesome.
-		wp_enqueue_style('font-awesome', plugins_url("wem-immo") . '/css/font-awesome.min.css', array(), false);
+//		wp_enqueue_style('font-awesome', plugins_url("wem-immo") . '/css/font-awesome.min.css', array(), false);
 //		// main stylesheet.
 //		wp_enqueue_style('vazard-style', plugins_url("vazard") . '/front/css/style.css', array(), false);
 

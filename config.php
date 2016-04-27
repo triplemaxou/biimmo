@@ -43,6 +43,34 @@ function bii_insertBDD() {
 
 //bii_insertBDD();
 
+add_action("bii_options_submit", function() {
+	logRequestVars();
+},10);
+add_action("bii_options_title", function() {
+	?>
+	<li role="presentation" class="hide-relative hide-publier active" data-relative="pl-passerelle"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Passerelle</li>
+	<?php
+}, 1);
+add_action("bii_options", function() {
+	?>
+	
+	<div class="col-xxs-12 pl-passerelle bii_option ">
+		<button class="btn btn-primary import" id="import-1" data-from="0" data-to="330"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 0 à 330 <i class="fa fa-spinner hidden"></i></button>
+	<button class="btn btn-primary import" id="import-2" data-from="330" data-to="660"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 331 à 660 <i class="fa fa-spinner hidden"></i></button>
+	<button class="btn btn-primary import" id="import-3" data-from="660" data-to="990"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 661 à 990 <i class="fa fa-spinner hidden"></i></button>
+	<button class="btn btn-primary vidercache" id="vidercache" ><i class="fa fa-refresh"></i> Vider le cache</button>
+	<p>
+		<span class="expl-import hidden">
+			Veuillez patienter, cette opération peut prendre 10 minutes.
+		</span>
+		<span class="ok-import hidden">
+			L'import est terminé
+		</span>
+		<?php ?>
+	</p>
+	</div>
+	<?php
+}, 1);
 /*
  * 
  * Fonctions utilitaires
@@ -123,145 +151,4 @@ function autoRemplissageFilter() {
 	}
 
 	return $filter;
-}
-
-function debugEcho($string){
-	if ($_SERVER["REMOTE_ADDR"] == "77.154.194.84") {
-		echo $string;
-	}
-}
-function pre($item,$color="#000"){
-	if ($_SERVER["REMOTE_ADDR"] == "77.154.194.84") {
-		echo "<pre style='color:$color'>";
-		var_dump($item);
-		echo "</pre>";
-	}
-}
-
-function consoleLog($string) {
-	if ($_SERVER["REMOTE_ADDR"] == "77.154.194.84") {
-		$string = addslashes($string);
-		?><script>console.log('<?php echo $string; ?>');</script><?php
-	}
-}
-
-function consoleDump($var) {
-	if ($_SERVER["REMOTE_ADDR"] == "77.154.194.84") {
-//	ob_start();
-//	var_dump($var);
-//	$string = ob_get_contents();
-//	ob_end_clean();
-		?><script>console.log('<?php var_dump($var); ?>');</script><?php
-	}
-}
-
-function logQueryVars($afficherNull = false) {
-	global $wp_query;
-	foreach ($wp_query->query_vars as $key => $item) {
-		if (!is_array($item)) {
-			$$key = urldecode($item);
-			if ($afficherNull) {
-				consoleLog("$key => $item");
-			} else {
-				if ($item != "") {
-					consoleLog("$key => $item");
-				}
-			}
-		}
-	}
-}
-
-function logRequestVars() {
-	foreach ($_REQUEST as $key => $item) {
-		if (!is_array($item)) {
-			$$key = urldecode($item);
-			consoleLog("$key => $item");
-		}
-	}
-}
-
-function logGETVars() {
-	foreach ($_GET as $key => $item) {
-		if (!is_array($item)) {
-			$$key = urldecode($item);
-			consoleLog("$key => $item");
-		} else {
-			$log = "$key => {";
-			foreach ($item as $key2 => $val) {
-				$log .= " $key2=>$val";
-			}
-			$log .= "}";
-			consoleLog($log);
-		}
-	}
-}
-
-function headersOK($url) {
-	error_log("URL : " . $url);
-	$return = false;
-	$headers = @get_headers($url, 1);
-
-	error_log("HEADER : " . print_r($headers, true));
-	if ($headers[0] == 'HTTP/1.1 200 OK') {
-		$return = true;
-	}
-
-	return $return;
-}
-
-function isHTTP($url) {
-	$return = false;
-	if (substr($url, 0, 7) == 'http://' || substr($url, 0, 8) == 'https://') {
-		$return = true;
-	}
-	return $return;
-}
-
-function startVoyelle($string) {
-	$voyelle = false;
-	$string = strtolower(remove_accents($string));
-	$array_voyelles = array("a", "e", "i", "o", "u");
-	if (in_array($string[0], $array_voyelles)) {
-		$voyelle = true;
-	}
-	return $voyelle;
-}
-
-function stripAccents($string) {
-	$string = htmlentities($string, ENT_NOQUOTES, 'utf-8');
-	$string = preg_replace('#\&([A-za-z])(?:uml|circ|tilde|acute|grave|cedil|ring)\;#', '\1', $string);
-	$string = preg_replace('#\&([A-za-z]{2})(?:lig)\;#', '\1', $string);
-	$string = preg_replace('#\&[^;]+\;#', '', $string);
-	return $string;
-}
-
-function stripAccentsLiens($string) {
-	$string = mb_strtolower($string, 'UTF-8');
-	$string = stripAccents($string);
-
-	$search = array('@[ ]@i', '@[\']@i', '@[^a-zA-Z0-9_-]@');
-	$replace = array('-', '-', '');
-
-	$string = preg_replace($search, $replace, $string);
-	$string = str_replace('--', '-', $string);
-	$string = str_replace('--', '-', $string);
-
-	return $string;
-}
-
-function stripAccentsToMaj($string) {
-	$string = stripAccentsLiens($string);
-	$string = str_replace('-', ' ', $string);
-	$string = strtoupper($string);
-	return $string;
-}
-
-function url_exists($url) {
-	$file_headers = @get_headers($url);
-	if ($file_headers[0] == 'HTTP/1.1 404 Not Found') {
-		$exists = false;
-	} else {
-		$exists = true;
-	}
-	return $exists;
 }

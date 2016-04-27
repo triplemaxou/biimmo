@@ -1,12 +1,26 @@
 <?php
+
 /*
   Plugin Name: Biimmo
   Description: Gestion du carnet de biens d'une agence immobilière.
-  Version: 1.1
+  Version: 1.2
   Author: Biilink Agency
   Author URI: http://biilink.com/
   License: GPL2
  */
+
+define('Biimmo_version', '1.2');
+
+//Plugin biidebug, ajout de fonctions
+require_once(plugin_dir_path(__FILE__) . "/plugins/biidebug/biidebug.php");
+//Plugin biibdd, ajout de fonctions bases de données
+require_once(plugin_dir_path(__FILE__) . "/plugins/bii_bdd/bii_bdd.php");
+//Plugin biiadvanced admin, ajout de fonctionnalités ajax sur l'interface d'admin
+require_once(plugin_dir_path(__FILE__) . "/plugins/biiadvanced-admin/biiadvanced-admin.php");
+//Plugin biicheckseo, ajout de scripts permettant de vérifier la SEO des pages parcourues
+require_once(plugin_dir_path(__FILE__) . "/plugins/biicheckseo/biicheckseo.php");
+//Plugin bii_advanced_shortcodes, ajout de shortcodes
+require_once(plugin_dir_path(__FILE__) . "/plugins/biiadvanced_shortcodes/biiadvanced_shortcodes.php");
 
 function bii_enqueueCSS() {
 	wp_enqueue_style('bootstrap', plugins_url('css/bootstrap.css', __FILE__));
@@ -16,11 +30,15 @@ function bii_enqueueCSS() {
 }
 
 bii_enqueueCSS();
+
 function bii_enqueueJS() {
-	wp_enqueue_script('util', plugins_url('js/util.js', __FILE__), array('jquery'), false, true);
-	wp_enqueue_script('seoscript', plugins_url('js/seo.js', __FILE__), array('jquery','util'), false, true);
-	wp_enqueue_script('lazyload2', plugins_url('js/lazyload.js', __FILE__), array('jquery'), false, true);
-	wp_enqueue_script('manual-lazyload', plugins_url('js/manual-lazyload.js', __FILE__), array('jquery','lazyload2','util'), false, true);
+//	wp_enqueue_script('util', plugins_url('js/util.js', __FILE__), array('jquery'), false, true);
+	if (!get_option("bii_hideseo")) {
+		update_option("bii_hideseo", 0);
+		wp_enqueue_script('seoscript', plugins_url('plugins/biicheckseo/js/seo.js', __FILE__), array('jquery', 'util'), false, true);
+	}
+//	wp_enqueue_script('lazyload2', plugins_url('js/lazyload.js', __FILE__), array('jquery'), false, true);
+//	wp_enqueue_script('manual-lazyload', plugins_url('js/manual-lazyload.js', __FILE__), array('jquery', 'lazyload2', 'util'), false, true);
 }
 
 bii_enqueueJS();
@@ -39,11 +57,18 @@ function bii_menu() {
 add_action('admin_menu', 'bii_menu');
 
 function bii_dashboard() {
+	wp_enqueue_script('admin-init', plugins_url('/admin/js/dashboard.js', __FILE__), array('jquery'), null, true);
+	wp_enqueue_style('bii-admin-css', plugins_url('/admin/css/admin.css', __FILE__));
 	include('admin/dashboard.php');
 }
 
 function bii_ajax_dezip() {
 	include("ajax/ajax_dezip.php");
+	die();
+}
+
+function bii_ajax_purge_pictures() {
+	include("ajax/ajax_purge_pictures.php");
 	die();
 }
 
@@ -67,24 +92,6 @@ function bii_ajax_delete() {
 	die();
 }
 
-function bii_showlogs() {
-	?>
-	<script type="text/javascript" src="http://l2.io/ip.js?var=myip"></script>
-	<script type="text/javascript">
-		var ajaxurl = '<?= admin_url('admin-ajax.php'); ?>';
-		var bloginfourl = '<?= get_bloginfo("url") ?>';
-		var bii_showlogs = false;
-		var ip_client = myip;
-		if (ip_client == "77.154.194.84") {
-			bii_showlogs = true;
-		}
-	</script>
-	<?php
-}
-
-add_action('wp_head', 'bii_showlogs');
-
-
 add_action('wp_ajax_bii_dezip', 'bii_ajax_dezip');
 add_action('wp_ajax_nopriv_bii_dezip', 'bii_ajax_dezip');
 
@@ -100,10 +107,5 @@ add_action('wp_ajax_nopriv_bii_register_request', 'bii_register_request');
 add_action('wp_ajax_bii_delete', 'bii_ajax_delete');
 add_action('wp_ajax_nopriv_bii_delete', 'bii_ajax_delete');
 
-/* Retirer emojis */
-
-remove_action('wp_head', 'print_emoji_detection_script', 7);
-remove_action('wp_print_styles', 'print_emoji_styles');
-
-remove_action('admin_print_scripts', 'print_emoji_detection_script');
-remove_action('admin_print_styles', 'print_emoji_styles');
+add_action('wp_ajax_bii_ajax_purge_pictures', 'bii_ajax_purge_pictures');
+add_action('wp_ajax_nopriv_bii_ajax_purge_pictures', 'bii_ajax_purge_pictures');

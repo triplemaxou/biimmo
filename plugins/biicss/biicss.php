@@ -20,6 +20,8 @@ add_action('admin_enqueue_scripts', function () {
 
 add_action('wp_enqueue_scripts', function() {
 	if (get_option("bii_useleftmenu")) {
+		wp_enqueue_style('bootstrap', plugins_url('css/bootstrap.css', __FILE__));
+		wp_enqueue_style('font-awesome', plugins_url('css/font-awesome.min.css', __FILE__));
 		wp_enqueue_script('jquery-effects-core');
 		wp_enqueue_style('leftmenu', plugins_url('css/leftmenu.css', __FILE__));
 		wp_enqueue_script('leftmenuscript', plugins_url('js/leftmenu.js', __FILE__), array('jquery', 'jquery-ui-core', 'jquery-effects-core', 'util'), false, true);

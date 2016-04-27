@@ -261,5 +261,11 @@ class annonce_image extends bii_items {
 		<?php
 	}
 
+	public function purge(){
+		echo $this->attach_id;
+		if(false === wp_delete_attachment($this->attach_id,true)){
+			echo "impossible de supprimer $this->attach_id ";
+		}
+	}
 	
 }

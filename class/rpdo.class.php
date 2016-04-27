@@ -49,10 +49,16 @@ class rpdo {
 
 	public static function getDBCommunes(){
 		
-		$rpdo_host = "localhost";
-		$rpdo_name = "jador2";
-		$rpdo_user = "jador";
-		$rpdo_pwd = "GJqcTCp4";
+		if (!get_option("bii_use_bddcommunes")) {
+			throw new Exception("Vous essayez d'utiliser la base de données des communes alors qu'elle n'est pas initialisée", "1719");
+		}
+		if (!get_option("bii_host_bddcommunes") || !get_option("bii_name_bddcommunes") || !get_option("bii_user_bddcommunes") || !get_option("bii_pwd_bddcommunes")) {
+			throw new Exception("Vous essayez d'utiliser la base de données des communes alors qu'elle n'est pas configurée", "1720");
+		}
+		$rpdo_host = get_option("bii_host_bddcommunes");
+			$rpdo_name = get_option("bii_name_bddcommunes");
+			$rpdo_user = get_option("bii_user_bddcommunes");
+			$rpdo_pwd = get_option("bii_pwd_bddcommunes ");
 
 
 		$db = new PDO('mysql:host=' . $rpdo_host . ';dbname=' . $rpdo_name, $rpdo_user, $rpdo_pwd);

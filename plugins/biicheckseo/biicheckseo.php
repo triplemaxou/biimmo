@@ -17,7 +17,7 @@ function biicheckseo_enqueueJS() {
 	}
 }
 
-biicheckseo_enqueueJS();
+//biicheckseo_enqueueJS();
 
 add_action("bii_informations", function() {
 	?>
