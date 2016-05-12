@@ -15,6 +15,9 @@ if (isset($_REQUEST["nom_classe"])) {
 				$item = new $nom_classe($id);
 				$return = $item->$method($value);
 				?><p class="success" data-return="<?= $return; ?>">updated</p><?php
+				if(function_exists("rocket_clean_user")){
+				rocket_clean_user( get_current_user_id());
+			}
 			}else{
 				?><p class="warning">value seems to be uninitialized</p><?php
 			}

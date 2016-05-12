@@ -10,7 +10,10 @@ $cu = wp_get_current_user();
 if ($cu->ID) {
 	$rep = usermeta::add($cu->ID, "requete_sauvegardee", $ser, false);
 	echo $rep;
-}else{
+	if (function_exists("rocket_clean_user")) {
+		rocket_clean_user($cu->ID);
+	}
+} else {
 	echo "Vous n'êtes pas connecté";
 }
 

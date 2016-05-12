@@ -20,7 +20,7 @@ class usermeta extends global_class {
 		$id = 0;
 		if (!static::exists($user_id, $value)) {
 			$id = static::insertDefault($user_id, $key, $value);
-			echo "new $id";
+			echo "new $id ";
 			return $id;
 		} else {
 			$id = static::from_id_key($user_id, $key);
@@ -54,21 +54,15 @@ class usermeta extends global_class {
 
 	public static function from_id_key($user_id, $key) {
 		$liste = static::all_id("user_id = '$user_id' AND meta_key = '$key'");
-		foreach ($liste as $id) {
-			return $id;
-		}
+		return $liste[0];
 	}
 
 	public static function multiple_from_id_key($user_id, $key) {
 		$liste = static::all_id("user_id = '$user_id' AND meta_key = '$key'");
-		$listereturn = [];
-		foreach ($liste as $id) {
-			$listereturn[] = $id;
-		}
-		return $listereturn;
+		return $liste;
 	}
-	
-	public function liste_biens(){
+
+	public function liste_biens() {
 		$where = $this->display_request();
 //		pre($where,"green");
 		$list = annonce::all_id($where);
@@ -78,8 +72,8 @@ class usermeta extends global_class {
 
 	public function display_request() {
 		$req = "0=1 ";
-		
-		
+
+
 		if ($this->meta_key == "requete_sauvegardee") {
 			$item = unserialize($this->meta_value);
 			if ($item["sendmail"] == 1) {
@@ -178,7 +172,9 @@ class usermeta extends global_class {
 
 	static function supprimable_ajax($id) {
 		$item = new static($id);
-		if ($item->value_ajax() == "requete_sauvegardee") {
+		$datatocheck = $item->meta_key();
+//		pre($item);
+		if ($datatocheck == "requete_sauvegardee" || utf8_encode($datatocheck) == "requete_sauvegardee"|| utf8_decode($datatocheck) == "requete_sauvegardee" ) {
 			return true;
 		}
 		return false;

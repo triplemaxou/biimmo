@@ -23,6 +23,7 @@ class users extends global_class {
 
 	public function get_rsItems() {
 		$liste = usermeta::multiple_from_id_key($this->id(), "requete_sauvegardee");
+		pre($liste,'red');
 		$listeRS = [];
 		if ((bool) $liste) {
 			foreach ($liste as $id) {

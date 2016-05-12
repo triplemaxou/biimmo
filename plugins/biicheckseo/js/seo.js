@@ -3,7 +3,12 @@ jQuery(function () {
 });
 function checkSEO() {
 	if (jQuery("title").length) {
-		bii_CL("TITLE : " + jQuery("title").html(),'color: green; font-weight: bold;');
+		var title = jQuery("title").html();
+		var color = "green";
+		if(title.length > 70){
+			color = "orange";
+		}
+		bii_CL("TITLE : " + title,'color: '+color+'; font-weight: bold;');
 	} else {
 		bii_CL_error("NO title");
 	}
@@ -26,12 +31,22 @@ function checkSEO() {
 		bii_CL_error('NO h1');
 	}
 	if (jQuery("meta[name='description']").length) {
-		bii_CL("DESCRIPTION : " + jQuery("meta[name='description']").attr("content"));
+		var description = jQuery("meta[name='description']").attr("content");
+		var color = "green";
+		if(description.length > 300){
+			color = "orange";
+		}
+		bii_CL("DESCRIPTION : " + description,'color: '+color+'; font-weight: bold;');
 	} else {
 		bii_CL_error("NO metadescription");
 	}
 	if (jQuery("meta[name='og:description']").length) {
-		bii_CL("OG:DESCRIPTION : " + jQuery("meta[name='og:description']").attr("content"));
+		var description = jQuery("meta[name='og:description']").attr("content");
+		var color = "green";
+		if(description.length > 300){
+			color = "orange";
+		}
+		bii_CL("OG:DESCRIPTION : " + description,'color: '+color+'; font-weight: bold;');
 	} else {
 		bii_CL_error("NO meta og:description");
 	}

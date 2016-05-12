@@ -532,4 +532,21 @@ if (!function_exists("debugEcho")) {
 		return $nblet;
 	}
 
+//Take me to the place where you go, where nobody knows
+	function is_it_night_or_day($time = null, $decalagehoraire = 2) {
+
+		if (!$time) {
+			$time = time();
+		}
+		$heure = date("G");
+		$heure += $decalagehoraire;
+		$heure = $heure % 24;
+//	echo $heure;
+		if ($heure < 6 || $heure > 22) {
+			return "night";
+		} else {
+			return "day";
+		}
+	}
+
 }

@@ -15,6 +15,8 @@ $log = $logs["log"];
 
 $subject = utf8_decode(get_bloginfo("name") . " import des données e:$nb_err a:$nb_add m:$nb_edit a:$nb_arch");
 $message = "$log";
+update_option("bii_last_paserelle",time());
+update_option("bii_last_paserelle_".$_REQUEST["from"]."_".$_REQUEST["to"],time());
 mail("t.lecrosnier@hubb.fr", $subject, $message);
 mail("t.poisson@hubb.fr", $subject, $message);
 

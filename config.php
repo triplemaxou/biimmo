@@ -45,29 +45,37 @@ function bii_insertBDD() {
 
 add_action("bii_options_submit", function() {
 	logRequestVars();
-},10);
+}, 10);
 add_action("bii_options_title", function() {
 	?>
 	<li role="presentation" class="hide-relative hide-publier active" data-relative="pl-passerelle"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Passerelle</li>
 	<?php
 }, 1);
 add_action("bii_options", function() {
-	?>
-	
+	$listereload = annonce::liste_reload();
+	$count = count($listereload);
+	$s= "s";
+	if($count == 1){
+		$s = "";
+	}
+	?>	
 	<div class="col-xxs-12 pl-passerelle bii_option ">
 		<button class="btn btn-primary import" id="import-1" data-from="0" data-to="330"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 0 à 330 <i class="fa fa-spinner hidden"></i></button>
-	<button class="btn btn-primary import" id="import-2" data-from="330" data-to="660"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 331 à 660 <i class="fa fa-spinner hidden"></i></button>
-	<button class="btn btn-primary import" id="import-3" data-from="660" data-to="990"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 661 à 990 <i class="fa fa-spinner hidden"></i></button>
-	<button class="btn btn-primary vidercache" id="vidercache" ><i class="fa fa-refresh"></i> Vider le cache</button>
-	<p>
-		<span class="expl-import hidden">
-			Veuillez patienter, cette opération peut prendre 10 minutes.
-		</span>
-		<span class="ok-import hidden">
-			L'import est terminé
-		</span>
-		<?php ?>
-	</p>
+		<button class="btn btn-primary import" id="import-2" data-from="330" data-to="660"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 331 à 660 <i class="fa fa-spinner hidden"></i></button>
+		<button class="btn btn-primary import" id="import-3" data-from="660" data-to="990"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 661 à 990 <i class="fa fa-spinner hidden"></i></button>
+		<button class="btn btn-primary vidercache" id="vidercache" ><i class="fa fa-refresh"></i> Vider le cache</button>
+		<?php if($count){ ?>
+		<button class="btn btn-warning reload">Il y a <?= $count; ?> bien<?= $s; ?> sans photos</button>
+		<?php }?>
+		<p>
+			<span class="expl-import hidden">
+				Veuillez patienter, cette opération peut prendre 10 minutes.
+			</span>
+			<span class="ok-import hidden">
+				L'import est terminé
+			</span>
+			<?php ?>
+		</p>
 	</div>
 	<?php
 }, 1);

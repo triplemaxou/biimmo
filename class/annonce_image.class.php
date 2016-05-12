@@ -11,6 +11,7 @@ class annonce_image extends bii_items {
 	protected $height;
 	protected $month;
 	protected $year;
+	protected $etag;
 
 	public static function feminin() {
 		return true;
@@ -27,6 +28,7 @@ class annonce_image extends bii_items {
 		<option class="nb" value="attach_id" data-oldval="attach_id" >Id du post attaché</option>
 		<option class="nb" value="month" data-oldval="month" >Mois</option>
 		<option class="nb" value="year" data-oldval="year" >Année</option>
+		<option class="text" value="etag" data-oldval="etag" >Etag</option>
 		<?php
 	}
 	
@@ -37,6 +39,7 @@ class annonce_image extends bii_items {
 			"attach_id" => "Lien vers le post",
 			"photo" => "Photo",
 			"alt" => "Texte alt",
+			"etag" => "etag",
 		);
 		return $array;
 	}
@@ -132,14 +135,15 @@ class annonce_image extends bii_items {
 		$where = "id_annonce = '$id_annonce'";
 		static::deleteWhere($where);
 	}
+	public static function deleteFromReference($ref) {
+		$where = "id_annonce in (SELECT id from annonce where reference = '$ref')";
+		static::deleteWhere($where);
+	}
 
 	static function deleteWhere($where = "") {
 		$liste = static::all_id($where);
 		foreach ($liste as $id) {
-//			$item = new static($id);
-//			$post = new posts($item->attach_id);
-//			posts::deleteStatic($item->attach_id);
-//			postmeta::deleteWhere("post_id = '" . $item->attach_id . "'");
+			
 			static::deleteStatic($id);
 		}
 	}
@@ -212,6 +216,7 @@ class annonce_image extends bii_items {
 
 			// Insert the attachment.
 			$attach_id = wp_insert_attachment($attachment, $filename, $parent_post_id);
+			
 
 			// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
 			require_once( ABSPATH . 'wp-admin/includes/image.php' );
@@ -233,7 +238,7 @@ class annonce_image extends bii_items {
 		$id_annonce = $this->id_annonce;
 		?>
 		<td class="id_annonce">			
-			<a class="btn btn-success" target="_blank" data-id="<?php echo $this->id; ?>" href="/admin.php?page=annonce_list&filter=identifiant$EQ$<?= $id_annonce ?>" >
+			<a class="btn btn-success" target="_blank" data-id="<?php echo $this->id; ?>" href="/wp-admin/admin.php?page=annonce_list&filter=id%24EQ%24<?= $id_annonce ?>" >
 				<?= $id_annonce ?>
 			</a>		
 		</td>
@@ -268,4 +273,27 @@ class annonce_image extends bii_items {
 		}
 	}
 	
+	
+	public static function listeEtag($where){
+		$liste = static::all_id($where);
+		$etags = [];
+		foreach($liste as $id){
+			$item = new static($id);
+			$etags[] = $item->etag;
+		}
+		return $etags;
+	}
+	
+	public static function etagExists($etag){
+		return static::nb("etag = '$etag'");
+	}
+	public static function fromEtag($etag){
+		$list =  static::all_id("etag = '$etag'");
+		$item = new static($list[0]);
+		return $item;
+	}
+	
+	public static function deleteFromEtag($etag){
+		static::deleteWhere("etag = '$etag'");
+	}
 }

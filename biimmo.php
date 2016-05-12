@@ -3,13 +3,13 @@
 /*
   Plugin Name: Biimmo
   Description: Gestion du carnet de biens d'une agence immobilière.
-  Version: 1.2
+  Version: 1.3
   Author: Biilink Agency
   Author URI: http://biilink.com/
   License: GPL2
  */
 
-define('Biimmo_version', '1.2');
+define('Biimmo_version', '1.3');
 
 //Plugin biidebug, ajout de fonctions
 require_once(plugin_dir_path(__FILE__) . "/plugins/biidebug/biidebug.php");
@@ -76,6 +76,12 @@ function bii_ajax_import() {
 	include("ajax/ajax_import.php");
 	die();
 }
+function bii_ajax_import_wparams($from,$to) {
+	$_REQUEST["from"] = $from;
+	$_REQUEST["to"] = $to;
+	include("ajax/ajax_import.php");
+	die();
+}
 
 function bii_ajax_change_value() {
 	include("ajax/ajax_value.php");
@@ -91,10 +97,16 @@ function bii_ajax_delete() {
 	include("ajax/ajax_delete.php");
 	die();
 }
+function bii_ajax_reload() {
+	include("ajax/ajax_reload_pictures.php");
+	die();
+}
 
 add_action('wp_ajax_bii_dezip', 'bii_ajax_dezip');
 add_action('wp_ajax_nopriv_bii_dezip', 'bii_ajax_dezip');
 
+
+add_action('bii_import', 'bii_ajax_import_wparams');
 add_action('wp_ajax_bii_import', 'bii_ajax_import');
 add_action('wp_ajax_nopriv_bii_import', 'bii_ajax_import');
 
@@ -109,3 +121,52 @@ add_action('wp_ajax_nopriv_bii_delete', 'bii_ajax_delete');
 
 add_action('wp_ajax_bii_ajax_purge_pictures', 'bii_ajax_purge_pictures');
 add_action('wp_ajax_nopriv_bii_ajax_purge_pictures', 'bii_ajax_purge_pictures');
+
+add_action('wp_ajax_bii_ajax_reload', 'bii_ajax_reload');
+add_action('wp_ajax_nopriv_bii_ajax_reload', 'bii_ajax_reload');
+
+
+
+add_filter("imcron_interval_id", "bii_set_interval");
+
+function bii_set_interval() {
+	return "every30minutes";
+}
+
+function bii_add_new_intervals($schedules) 
+{
+	// add weekly and monthly intervals
+	$schedules['4timesaday'] = array(
+		'interval' => 21600,
+		'display' => __('4 fois par jour')
+	);
+	$schedules['every30minutes'] = array(
+		'interval' => 1800,
+		'display' => __('Toutes les demi-heures')
+	);
+	return $schedules;
+}
+add_filter( 'cron_schedules', 'bii_add_new_intervals');
+
+register_deactivation_hook(__FILE__, 'bii_cron');
+register_activation_hook(__FILE__, 'bii_cron');
+//add_action('wp', 'bii_cron');
+function bii_cron() {
+	if (!wp_next_scheduled('bii_4daily_event')) {
+		wp_schedule_event(time(), '4timesaday', 'bii_4daily_event');
+	}
+}
+
+add_action('bii_4daily_event', 'bii_autoimport');
+
+function bii_autoimport() {
+	update_option("bii_last_paserelle_try",time());
+	if (is_it_night_or_day() == "night" && get_option("bii_last_paserelle") < time() - 43200) {
+		//import de nuit + dernier import datant de plus de 12h
+		do_action("bii_dezip");		
+		do_action("bii_import",0,330);
+		do_action("bii_import",331,660);
+		do_action("bii_import",661,990);
+	}
+}
+

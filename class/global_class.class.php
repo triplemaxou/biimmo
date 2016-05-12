@@ -51,7 +51,7 @@ class global_class {
 			$pdo = static::getPDO();
 //			$cn = static::nom_classe_bdd();
 			$query = "select * from $this->class_name where $identifiant='" . $id . "'";
-//			echo $query;
+			bii_write_log("[$this->class_name constructor] $query");
 			$query_select = $pdo->query($query);
 			if ($row_select = $query_select->fetch(PDO::FETCH_OBJ)) {
 				foreach ($row_select as $key => $value) {
@@ -1194,7 +1194,8 @@ class global_class {
 	 * @return int L'id de l'objet créé
 	 */
 	function insert($param = false) {
-		if ($this->id == 0) {
+		$identifiant = static::identifiant();
+		if ($this->$identifiant == 0) {
 			$pdo = static::getPDO();
 			$class_name = static::prefix_bdd() . static::nom_classe_bdd();
 			$cle = array();
@@ -1217,8 +1218,8 @@ class global_class {
 			$req = "INSERT INTO $class_name ($id" . $cle_str . ") values (''" . $value_str . ")";
 //			echo $req;
 			$pdo->exec($req);
-			$this->id = $pdo->lastInsertId();
-			return $this->id;
+			$this->$identifiant = $pdo->lastInsertId();
+			return $this->$identifiant;
 		} else {
 			echo "L'objet existe déjà";
 			exit;
@@ -1240,7 +1241,7 @@ class global_class {
 	 */
 	function updateChamps($value, $champs = false, $where = false) {
 		$identifiant = static::identifiant();
-		if ($this->id === 0)
+		if ($this->$identifiant === 0)
 			return false;
 		if (!is_array($value) && $champs !== false) {
 			$value = array($champs => $value);
@@ -1313,13 +1314,13 @@ class global_class {
 				}
 				$query_update .=' 1=1';
 			} else {
-				$query_update .= "$identifiant='" . $this->id . "'";
+				$query_update .= "$identifiant='" . $this->$identifiant . "'";
 			}
 
 
 			$req = $pdo->prepare($query_update);
 
-//			echo $query_update;
+//			bii_write_log("update_champs ".$query_update);
 
 			$retour = $req->execute($array_prepare);
 			$pdo = null;
@@ -1478,7 +1479,7 @@ class global_class {
 			$req .= " GROUP BY " . $groupBy;
 		}
 //pre($req);
-//		consoleLog($req);
+		bii_write_log("all_id ".$req);
 		$select = $pdo->query($req);
 		$liste = array();
 		while ($row = $select->fetch()) {
@@ -1529,7 +1530,7 @@ class global_class {
 		if ($groupBy) {
 			$req = str_ireplace("GROUP BY $groupBy", "", $req);
 		}
-//		pre($req,"red");
+		bii_write_log("nb ".$req);
 
 		$select = $pdo->query($req);
 		while ($row = $select->fetch()) {
@@ -1552,7 +1553,7 @@ class global_class {
 		if ($where != "") {
 			$req .= " where " . $where;
 		}
-//		echo $req;
+		bii_write_log("last_id ".$req);
 		$select = $pdo->query($req);
 		while ($row = $select->fetch()) {
 			$nb = $row["max"];

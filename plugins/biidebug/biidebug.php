@@ -2,12 +2,12 @@
 /*
   Plugin Name: BiiDebug
   Description: Ajoute des fonctions de débug, invisibles pour le public
-  Version: 2.0.3
+  Version: 2.0.4
   Author: Biilink Agency
   Author URI: http://biilink.com/
   License: GPL2
  */
-define('bii_debug_version', '2.0.3');
+define('bii_debug_version', '2.0.4');
 
 include_once("functions.php");
 

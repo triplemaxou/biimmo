@@ -19,10 +19,9 @@
 					<?php if (bii_canshow_debug()) { ?>
 						<div class="col-xxs-12 pl-zdt bii_option hidden">
 							<h2 class="faa-parent animated-hover"><i class="fa fa-cogs faa-ring"></i> Zone de test</h2>
+							<button class="btn btn-primary import" id="import-test" data-from="0" data-to="2"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Import test <i class="fa fa-spinner hidden"></i></button>
 							<?php
-							$annonce = new annonce(2521);
-							pre($annonce->getPhotos());
-							pre(wp_delete_attachment(25454));
+							
 							?>
 						</div>
 					<?php } ?>
@@ -32,9 +31,9 @@
 			</div>
 		</div>
 	</div>
-	
-	
-	
+
+
+
 </div>
 <div class='clear'></div>
 
