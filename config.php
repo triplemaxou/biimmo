@@ -48,7 +48,7 @@ add_action("bii_options_submit", function() {
 }, 10);
 add_action("bii_options_title", function() {
 	?>
-	<li role="presentation" class="hide-relative hide-publier active" data-relative="pl-passerelle"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Passerelle</li>
+	<li role="presentation" class="hide-relative hide-publier active" data-relative="pl-passerelle" title="Date de la dernière tentative de passerelle : <?= date("d/m/Y H:i:s",get_option("bii_last_paserelle_try")); ?>"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Passerelle</li>
 	<?php
 }, 1);
 add_action("bii_options", function() {
@@ -60,10 +60,18 @@ add_action("bii_options", function() {
 	}
 	?>	
 	<div class="col-xxs-12 pl-passerelle bii_option ">
-		<button class="btn btn-primary import" id="import-1" data-from="0" data-to="330"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 0 à 330 <i class="fa fa-spinner hidden"></i></button>
-		<button class="btn btn-primary import" id="import-2" data-from="330" data-to="660"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 331 à 660 <i class="fa fa-spinner hidden"></i></button>
-		<button class="btn btn-primary import" id="import-3" data-from="660" data-to="990"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 661 à 990 <i class="fa fa-spinner hidden"></i></button>
-		<button class="btn btn-primary vidercache" id="vidercache" ><i class="fa fa-refresh"></i> Vider le cache</button>
+		<button class="btn btn-primary import" id="import-1" data-from="0" data-to="330" data-relative="pl-passerelle" title="Date de la dernière passerelle : <?= date("d/m/Y H:i:s",get_option("bii_last_paserelle_0_330")); ?>">
+			<i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 0 à 330 <i class="fa fa-spinner hidden"></i>
+		</button>
+		<button class="btn btn-primary import" id="import-2" data-from="330" data-to="660" title="Date de la dernière passerelle : <?= date("d/m/Y H:i:s",get_option("bii_last_paserelle_330_660")); ?>">
+			<i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 331 à 660 <i class="fa fa-spinner hidden"></i>
+		</button>
+		<button class="btn btn-primary import" id="import-3" data-from="660" data-to="990" title="Date de la dernière passerelle : <?= date("d/m/Y H:i:s",get_option("bii_last_paserelle_660_990")); ?>" >
+			<i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 661 à 990 <i class="fa fa-spinner hidden"></i>
+		</button>
+		<button class="btn btn-primary vidercache" id="vidercache" title="Date de la dernière passerelle : <?= date("d/m/Y H:i:s",get_option("bii_last_paserelle")); ?>">
+			<i class="fa fa-refresh"></i> Vider le cache
+		</button>
 		<?php if($count){ ?>
 		<button class="btn btn-warning reload">Il y a <?= $count; ?> bien<?= $s; ?> sans photos</button>
 		<?php }?>

@@ -216,13 +216,15 @@ if (!function_exists("debugEcho")) {
 		if ($type == "textarea") {
 			$return = "<textarea class='$class' id='$option' name='$option'>$value</textarea>";
 		} else if ($type == "select") {
-			$return = "<select class='$class' id='$option' name='$option'>";
-			foreach ($options as $optid => $name) {
+//			pre($value);
+			$return = "<select class='$class' id='$option' name='$option'>";			
+			foreach ($options as $optid => $name) {				
 				$selected = "";
-				if ($optid == $value) {
+				if (stripcslashes($optid) == $value) {
 					$selected = "selected='selected'";
-				}
-				$return.= "<option value='$optid'>$name</option>";
+//					pre($optid);
+				}				
+				$return.= "<option value='$optid' $selected>$name</option>";
 			}
 			$return .= "</select>";
 		} else if ($type == "wpeditor") {

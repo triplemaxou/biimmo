@@ -3,7 +3,7 @@
 ini_set('display_errors', '1');
 require_once("/web/clients/lemdev/www.lemaistre-immo.fr/wp-content/plugins/biimmo/config.php");
 //annonce_image::autoTable(true);
-
+bii_write_log("Import des données ".$_REQUEST["from"]." à ".$_REQUEST["to"]);
 
 
 $logs = bii_items::fromXML("", $_REQUEST["from"], $_REQUEST["to"], $liste_identifiant1);

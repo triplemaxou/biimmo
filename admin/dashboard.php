@@ -19,10 +19,11 @@
 					<?php if (bii_canshow_debug()) { ?>
 						<div class="col-xxs-12 pl-zdt bii_option hidden">
 							<h2 class="faa-parent animated-hover"><i class="fa fa-cogs faa-ring"></i> Zone de test</h2>
-							<button class="btn btn-primary import" id="import-test" data-from="0" data-to="2"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Import test <i class="fa fa-spinner hidden"></i></button>
-							<?php
-							
-							?>
+							<div class="col-xxs-4">
+								<button class="btn btn-primary import" id="import-test" data-from="0" data-to="2"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Import test <i class="fa fa-spinner hidden"></i></button>
+							</div>
+							<?php bii_makestuffbox("bii_last_paserelle", "Dernière passerelle", "text", "col-xxs-8"); ?>
+							<?php ?>
 						</div>
 					<?php } ?>
 					<div class="clear"></div>

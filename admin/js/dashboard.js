@@ -32,7 +32,8 @@ jQuery(function ($) {
 		});
 	});
 
-	$(".bii_upval").on("click", function () {
+	$(".bii_upval").on("click", function (e) {
+		e.preventDefault();
 		var val = $(this).attr("data-newval");
 		var option = $(this).attr("data-option");
 		var html = $(this).html();
@@ -48,6 +49,9 @@ jQuery(function ($) {
 			success: function (reponse) {
 //				alert(reponse);
 				location.reload();
+			},
+			error:function(){
+				alert("erreur");
 			}
 		});
 	});

@@ -290,3 +290,7 @@ span.over{
 .hide-relative:hover{
 	background-color: #EEEEEE;
 }
+
+[title]{
+	cursor:help;
+}
