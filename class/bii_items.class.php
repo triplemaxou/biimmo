@@ -50,6 +50,7 @@ class bii_items extends global_class {
 		if ($is_autoinserted) {
 			$pdo = static::getPDO();
 			$pdo->query($scriptSQL);
+			bii_custom_log($scriptSQL, "auto Table");
 		}
 		return $scriptSQL;
 	}
@@ -69,20 +70,25 @@ class bii_items extends global_class {
 			$liste_annonces = $xml->bien;
 			unset($xml);
 			$count = count($liste_annonces);
-			echo "<h2>Nombre d'annonces au total : $count</h2>";
+			echo "<h2>Nombre d'annonces au total : $count</h2> "
+//				. "Memory ".(memory_get_peak_usage() / 1024 / 1024)." MB"
+				. "";
 			$i = 0;
 			$liste_identifiant = [];
 			$arrayClasses = ["annonce"];
 //			$liste_annonce = array_reverse($liste_annonce);
 			foreach ($liste_annonces as $item) {
-				echo " index $i";
+//				echo " index $i Memory ".(memory_get_peak_usage() / 1024 / 1024)." MB";
 				$liste_identifiant[] = $item->reference;
+				$id_xml = get_object_vars($item)["@attributes"]["id"];
 //				if($item->reference == "302721"){
 				if ($i >= $start && $i < $stop) {
 					foreach ($arrayClasses as $classe) {
 //						echo "<h2>Insert $classe</h2>";
 						try {
-							$log = $classe::fromAnnonceXML($item);
+							$log = "id_xml $id_xml ";
+							bii_custom_log("ID xml $id_xml","Début insertion bien");
+							$log .= $classe::fromAnnonceXML($item);
 
 							$return .= $log;
 							if (stripos($log, "erreur")) {
@@ -102,9 +108,17 @@ class bii_items extends global_class {
 				unset($item);
 				++$i;
 			}
-			$array_archive = annonce::checkIdentifiants($liste_identifiant);
-			$nb_archive = count($array_archive);
-			unset($liste_annonces);
+			
+//			
+			$where = "reference NOT IN(".implode(",",$liste_identifiant).") AND is_archive = 0";
+			$liste_archive = annonce::all_id($where);
+			$nb_archive = count($liste_archive);
+			if($nb_archive){
+				foreach($liste_archive as $id_arch){
+					$annarch = new annonce($id_arch);
+					$annarch->change_archive(1);
+				}
+			}
 		} else {
 			echo "Echec lors de l'ouverture du fichier $path";
 		}

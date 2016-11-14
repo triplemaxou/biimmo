@@ -9,6 +9,15 @@
  */
 define('bii_debug_version', '2.0.4');
 
+
+define('BiiDebug_path', plugin_dir_path(__FILE__));
+define('bii_debug_path', plugin_dir_path(__FILE__));
+define('bii_debug_url', plugin_dir_url(__FILE__));
+
+define('bii_debug_logs_custom_url', plugin_dir_url(__FILE__)."output/custom.log");
+define('bii_debug_logs_custom_path', plugin_dir_path(__FILE__)."output/custom.log");
+
+
 include_once("functions.php");
 
 function biidebug_enqueueJS() {
@@ -100,6 +109,7 @@ add_action("bii_options", function() {
 		bii_makestuffbox("bii_xsmall_width", "Pixels maximum xs", "number", "col-xxs-12 col-sm-6 col-md-3");
 		bii_makestuffbox("bii_xxsmall_width", "Pixels maximum xxs", "number", "col-xxs-12 col-sm-6 col-md-3");
 		bii_makestuffbox("bii_ipallowed", "Adresse IP de débug", "text", "col-xxs-12 col-sm-6 col-md-3");
+		bii_makestuffbox("theme_properties_on_search", "Nombre de biens à afficher", "number", "col-xxs-12 col-sm-6 col-md-3");
 		?>
 		<div class='clearfix'></div>
 	</div>
@@ -121,7 +131,7 @@ add_action("bii_options", function() {
 }, 2);
 
 add_action("bii_options_submit", function() {
-	$tableaucheck = ["bii_medium_width", "bii_small_width", "bii_xsmall_width", "bii_xxsmall_width"];
+	$tableaucheck = ["bii_ipallowed","bii_medium_width", "bii_small_width", "bii_xsmall_width", "bii_xxsmall_width","theme_properties_on_search"];
 	foreach ($tableaucheck as $itemtocheck) {
 		if (isset($_POST[$itemtocheck])) {
 			update_option($itemtocheck, $_POST[$itemtocheck]);

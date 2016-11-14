@@ -51,7 +51,7 @@ class global_class {
 			$pdo = static::getPDO();
 //			$cn = static::nom_classe_bdd();
 			$query = "select * from $this->class_name where $identifiant='" . $id . "'";
-			bii_write_log("[$this->class_name constructor] $query");
+//			bii_write_log("[$this->class_name constructor] $query");
 			$query_select = $pdo->query($query);
 			if ($row_select = $query_select->fetch(PDO::FETCH_OBJ)) {
 				foreach ($row_select as $key => $value) {
@@ -1479,7 +1479,7 @@ class global_class {
 			$req .= " GROUP BY " . $groupBy;
 		}
 //pre($req);
-		bii_write_log("all_id ".$req);
+//		bii_write_log("all_id ".$req);
 		$select = $pdo->query($req);
 		$liste = array();
 		while ($row = $select->fetch()) {
@@ -1530,7 +1530,7 @@ class global_class {
 		if ($groupBy) {
 			$req = str_ireplace("GROUP BY $groupBy", "", $req);
 		}
-		bii_write_log("nb ".$req);
+//		bii_write_log("nb ".$req);
 
 		$select = $pdo->query($req);
 		while ($row = $select->fetch()) {
@@ -1553,7 +1553,7 @@ class global_class {
 		if ($where != "") {
 			$req .= " where " . $where;
 		}
-		bii_write_log("last_id ".$req);
+//		bii_write_log("last_id ".$req);
 		$select = $pdo->query($req);
 		while ($row = $select->fetch()) {
 			$nb = $row["max"];

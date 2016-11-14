@@ -38,9 +38,42 @@ function bii_SC_notdisplaywhenrequest($atts, $content = null) {
 	}
 	return $return;
 }
+function bii_SC_displaywhenQuery($atts, $content = null) {
+	global $wp_query;
+	$display = true;
+	foreach ($atts as $attr => $value) {
+		$display = false;
+		if (isset($wp_query->query_vars[$attr]) && ($wp_query->query_vars[$attr] == $value || $value == "all")) {
+			$display = true;
+		}
+	}
+	$return = "";
+	if ($display) {
+		$return = do_shortcode($content);
+	}
+	return $return;
+}
+
+function bii_SC_notdisplaywhenQuery($atts, $content = null) {
+	global $wp_query;
+	foreach ($atts as $attr => $value) {
+		$display = true;
+		if (isset($wp_query->query_vars[$attr]) && ($wp_query->query_vars[$attr] == $value || $value == "all")) {
+			$display = false;
+		}
+	}
+	$return = "";
+	if ($display) {
+		$return = do_shortcode($content);
+	}
+	return $return;
+}
 
 add_shortcode('bii_displaywhenrequest', 'bii_SC_displaywhenrequest');
 add_shortcode('bii_notdisplaywhenrequest', 'bii_SC_notdisplaywhenrequest');
+
+add_shortcode('bii_displaywhenquery', 'bii_SC_displaywhenQuery');
+add_shortcode('bii_notdisplaywhenquery', 'bii_SC_notdisplaywhenQuery');
 
 add_action("bii_base_shortcodes", function() {
 	?>

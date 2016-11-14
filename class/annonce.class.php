@@ -59,6 +59,10 @@ class annonce extends bii_items {
 	protected $valeur_ges; //0.00 valeur_ges; //
 	protected $date_maj;
 
+	public function visiteVirtuelle() {
+		
+	}
+
 	public static function fromPost($post) {
 		$where = "id_post = $post";
 		$liste = static::all_id($where);
@@ -136,6 +140,7 @@ class annonce extends bii_items {
 		<option class="nb" value="id" data-oldval="id" >Id</option>
 		<option class="nb" value="reference" data-oldval="reference" >reference</option>
 		<option class="nb" value="id_post" data-oldval="id_post" >Id du post</option>
+		<option class="nb" value="is_archive" data-oldval="is_archive" >Archivée</option>
 		<option class="text" value="ville" data-oldval="ville" >Ville</option>
 		<?php
 	}
@@ -254,7 +259,7 @@ class annonce extends bii_items {
 	}
 
 	public function villeAAfficher() {
-		$ville = $this->ville;
+		$ville = utf8_encode($this->ville);
 
 		return $ville;
 	}
@@ -337,7 +342,11 @@ class annonce extends bii_items {
 	public function lienVisiteVirtuelle() {
 		$lien = "";
 		if ($this->visiteVirtuelle) {
-			$lien = "http://viewer.previsite.net/default.asp?Key=CJT64S&Portal=COMMNET&Ref=$this->visiteVirtuelle&TB_iframe=trueamp;height=305&width=291";
+			if (strpos($this->visiteVirtuelle, "tour.previsite.com")) {
+				$lien = $this->visiteVirtuelle;
+			} else {
+				$lien = "http://viewer.previsite.net/default.asp?Key=CJT64S&Portal=COMMNET&Ref=$this->visiteVirtuelle&TB_iframe=trueamp;height=305&width=291";
+			}
 		}
 		return $lien;
 	}
@@ -756,31 +765,16 @@ class annonce extends bii_items {
 			$arr["GES"] = "Classe " . $this->classeGES() . " (" . $this->GES() . " kgeqCO2/m2/an)";
 		}
 		if ($this->taxefonciere()) {
-			$arr["Taxe Foncière"] = $this->taxefonciere() . " €";
+			$arr["Taxe Foncière"] = $this->taxefonciere() . " &euro;";
 		}
 		if ($this->coprocharges()) {
-			$arr["Charges de Copropriété"] = $this->coprocharges() . " €";
+			$arr["Charges de Copropriété"] = $this->coprocharges() . " &euro;";
 		}
 		if ($this->lienVisiteVirtuelle()) {
 			$lien = $this->lienVisiteVirtuelle();
 			$arr["Visite Virtuelle"] = "<a href='$lien' target='_blank'>Voir la visite virtuelle</a>";
 		}
-
-		$count = count($arr);
-		$string = "";
-		if ($count) {
-			$string = "a:$count:{";
-			foreach ($arr as $key => $val) {
-				//s:4:"Test";s:1:"1";
-				$nbchk = strlen($key);
-				$nbchv = strlen($val);
-				$sub = 's:' . $nbchk . ':"' . $key . '";s:' . $nbchv . ':"' . $val . '";';
-				$string.=$sub;
-			}
-			$string .= "}";
-		}
-
-		return $string;
+		return serialize($arr);
 	}
 
 	public function agent_id() {
@@ -821,6 +815,7 @@ class annonce extends bii_items {
 			"REAL_HOMES_featured" => $this->coupdecoeur(),
 			"REAL_HOMES_add_in_slider" => $this->nouveaute(),
 			"REAL_HOMES_property_insee" => $this->codeInsee(),
+			"REAL_HOMES_property_virtual" => $this->lienVisiteVirtuelle(),
 		];
 
 
@@ -1038,6 +1033,7 @@ class annonce extends bii_items {
 	public static function fromAnnonceXML($annonceXML) {
 		$return = " erreur";
 		$vars = get_object_vars($annonceXML);
+//		$id_xml = $annonceXML["@attributes"]["id"];
 		unset($annonceXML);
 		$values = [];
 		$photos = [];
@@ -1050,7 +1046,7 @@ class annonce extends bii_items {
 				if ($identifiant == $key) {
 					$id = $val;
 				}
-
+				echo " Memory " . (memory_get_peak_usage() / 1024 / 1024) . " MB ";
 				$values[$key] = $val;
 			}
 			if ("images" == $key) {
@@ -1069,6 +1065,8 @@ class annonce extends bii_items {
 					$photos[] = ["photo" => $photo_ext, "etag" => $etag];
 				}
 //				sort($photos);
+//				echo " Memory ".(memory_get_peak_usage() / 1024 / 1024)." MB ";
+//				bii_custom_log($photos, "Photos insérées");
 			}
 		}
 		unset($vars);
@@ -1097,6 +1095,8 @@ class annonce extends bii_items {
 		$item->updateChamps($values);
 		$item->insertPost();
 		$id = $item->id;
+//		echo " Memory ".(memory_get_peak_usage() / 1024 / 1024)." MB ";
+		bii_custom_log("Bien $id id_post $item->id_post ", "Bien inséré");
 		try {
 			$item->insertPostMeta();
 		} catch (Exception $e) {
@@ -1107,6 +1107,7 @@ class annonce extends bii_items {
 
 		$item->insertTaxonomy();
 		$alt = $item->titre();
+		$countphotos = count($photos);
 		if ((bool) $photos) {
 			$attid1 = 1183;
 			$i = 1;
@@ -1116,9 +1117,9 @@ class annonce extends bii_items {
 				$etag = $phetag["etag"];
 				$etags[] = $etag;
 //				pre($phetag);
-				
+
 				$nbetag = annonce_image::etagExists($etag);
-				bii_write_log($photo." ".$nbetag);
+				bii_write_log($photo . " " . $nbetag);
 				if ($nbetag == 1) {
 					$ai = annonce_image::fromEtag($etag);
 				} else {
@@ -1141,14 +1142,14 @@ class annonce extends bii_items {
 				++$i;
 			}
 			$liste_etagsbien = $item->listeEtags();
-			foreach($liste_etagsbien as $etcheck){
-				if(!in_array($etcheck, $etags)){
+			foreach ($liste_etagsbien as $etcheck) {
+				if (!in_array($etcheck, $etags)) {
 					$photo = annonce_image::fromEtag($etcheck);
 					$photo->purge();
 					$photo->delete();
 				}
 			}
-			
+
 			delete_post_thumbnail($item->id_post);
 			set_post_thumbnail($item->id_post, $attid1);
 			if ($item->nouveaute) {
@@ -1159,6 +1160,7 @@ class annonce extends bii_items {
 			}
 			unset($ai);
 			unset($ai1);
+			bii_custom_log("Bien $id nb photos $countphotos", "Photos insérées");
 		}
 
 		unset($item);
@@ -1168,11 +1170,64 @@ class annonce extends bii_items {
 
 	public static function fromIdentifiant($id) {
 		$where = "reference = '" . $id . "'";
+		bii_custom_log("fromIdentifiant $id");
 		$ids = static::all_id($where);
-		foreach ($ids as $id) {
-			return new static($id);
+		$nb = count($ids);
+		if ($nb) {
+			return new static($ids[0]);
 		}
+
 		return new static(0);
+	}
+
+	public static function toDoDoublons($meth = "count") {
+		$req = "reference IN (SELECT reference FROM wp_987abc_bii_annonce GROUP BY reference HAVING COUNT(*) > 1)";
+		$ids = static::all_id($req);
+
+		$refprec = 0;
+		if ($meth == "count") {
+			return count($ids);
+		}
+		if ($meth == "print") {
+			$liste_ref = [];
+			foreach ($ids as $id) {
+				$item = new static($id);
+				$liste_ref[$id] = $item->reference;
+			}
+			pre($liste_ref);
+		}
+		if ($meth == "return") {
+			$liste_ref = [];
+			foreach ($ids as $id) {
+				$item = new static($id);
+				$liste_ref[$id] = $item->reference;
+			}
+			return $liste_ref;
+		}
+		if ($meth == "desarchive") {
+			$liste_ref = [];
+			foreach ($ids as $id) {
+				$item = new static($id);
+				$item->change_archive(0);
+			}
+			pre($liste_ref);
+		}
+
+		if ($meth == "delete" || $meth == "archive") {
+			foreach ($ids as $id) {
+				$item = new static($id);
+				$refcurrent = $item->reference;
+				if ($refprec == $refcurrent) {
+					$item->change_archive(1);
+					if ($meth == "delete") {
+						wp_delete_post($item->id_post, 1);
+						static::deleteStatic($id);
+					}
+				}
+				$refprec = $refcurrent;
+			}
+		}
+		posts::deleteWhere('post_type = "property" AND `post_content` = "" AND ID not IN (select distinct id_post from `wp_987abc_bii_annonce`');
 	}
 
 	public static function exists($id) {
@@ -1214,6 +1269,16 @@ class annonce extends bii_items {
 			$date_actu_expl_anne = $date_actu_expl[0];
 			return "$date_actu_expl_jour/$date_actu_expl_mois/$date_actu_expl_anne";
 		}
+	}
+
+	public static function archive_where($where = "") {
+		$nom_table = static::prefix_bdd() . static::nom_classe_bdd();
+		$req = "UPDATE $nom_table set is_archive = 1 where $where";
+		bii_custom_log($req, "Request_archive");
+		$pdo = static::getPDO();
+		$nb = $pdo->exec($req);
+		bii_custom_log($nb, "Post Archive");
+		return $nb;
 	}
 
 	public function change_archive($value) {
@@ -1283,29 +1348,29 @@ class annonce extends bii_items {
 		<?= $id_post ?>
 			</a>		
 		</td>
-		<?php
-	}
+				<?php
+			}
 
-	public function titre_ligneIA() {
-		$titre = $this->titre();
-		?>
+			public function titre_ligneIA() {
+				$titre = $this->titre();
+				?>
 		<td class="titre">			
 
 		<?= $titre ?>
 
 		</td>
-		<?php
-	}
-
-	public function is_archive_ligneIA() {
-
-		$radios = array("Non" => "success", "Oui" => "danger");
-		$is_archive = $this->is_archive;
-		$val = "Non";
-		if ($is_archive == 1) {
-			$val = "Oui";
+			<?php
 		}
-		?>
+
+		public function is_archive_ligneIA() {
+
+			$radios = array("Non" => "success", "Oui" => "danger");
+			$is_archive = $this->is_archive;
+			$val = "Non";
+			if ($is_archive == 1) {
+				$val = "Oui";
+			}
+			?>
 		<td class="statut"> 
 		<?php
 		foreach ($radios as $value => $color) {
@@ -1319,10 +1384,10 @@ class annonce extends bii_items {
 			?>
 				<button class="btn btn-<?php echo $color; ?> change-statut" data-id="<?php echo $this->id; ?>" ><?php echo ucfirst($value . $checked); ?></button>
 
-			<?php
-		}
+				<?php
+			}
 //			echo $this->have("ascenseur");
-		?>
+			?>
 		</td>
 			<?php
 		}
@@ -1527,7 +1592,7 @@ class annonce extends bii_items {
 						<div class="detail" style="height:130px;">
 							<h5 class="price" ><span style="color:#cd1719;">
 		<?= $prix; ?> €</span><small> - <?= $type_bien; ?></small>            </h5>
-									<?= $description; ?>
+		<?= $description; ?>
 
 						</div>
 
@@ -1606,8 +1671,7 @@ class annonce extends bii_items {
 		<?php
 	}
 
-	
-	public static function liste_reload(){
+	public static function liste_reload() {
 		$req = 'ID NOT IN '
 			. '( '
 			. 'select meta.post_id from wp_987abc_posts as post '
@@ -1621,11 +1685,14 @@ class annonce extends bii_items {
 			. 'ORDER BY ID ASC';
 		$liste = posts::all_id($req);
 		$liste_annonce = [];
-		foreach($liste as $id_post){
+		foreach ($liste as $id_post) {
 			$liste_annonce[] = static::fromPost($id_post);
 		}
 		return $liste_annonce;
 	}
-	
-	
+
+	public static function nb_annonces($where = "1=1") {
+		return static::nb("is_archive = 0 AND $where");
+	}
+
 }

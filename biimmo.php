@@ -3,13 +3,15 @@
 /*
   Plugin Name: Biimmo
   Description: Gestion du carnet de biens d'une agence immobilière.
-  Version: 1.4
+  Version: 1.5
   Author: Biilink Agency
   Author URI: http://biilink.com/
   License: GPL2
  */
 
-define('Biimmo_version', '1.4');
+define('Biimmo_version', '1.5');
+define('bii_immo_path', plugin_dir_path(__FILE__));
+define('bii_immo_url', plugin_dir_url(__FILE__));
 
 //Plugin biidebug, ajout de fonctions
 require_once(plugin_dir_path(__FILE__) . "/plugins/biidebug/biidebug.php");
@@ -78,10 +80,31 @@ function bii_ajax_import() {
 	include("ajax/ajax_import.php");
 	die();
 }
-function bii_ajax_import_wparams($from,$to) {
-	$_REQUEST["from"] = $from;
-	$_REQUEST["to"] = $to;
-	include("ajax/ajax_import.php");
+
+function bii_ajax_import_test() {
+	do_action('bii_import', 0, 1);
+	do_action('bii_import', 2, 3);
+	die();
+}
+
+function bii_ajax_import_wparams($from, $to) {
+	bii_custom_log("Import des données " . $from . " à " . $to);
+	update_option("bii_passerelle_ids", "");
+
+	$logs = bii_items::fromXML("", $from, $to);
+	$nb_err = $logs["errors"];
+	$nb_add = $logs["added"];
+	$nb_edit = $logs["edit"];
+	$nb_arch = $logs["archive"];
+	$log = $logs["log"];
+
+	$subject = utf8_decode(get_bloginfo("name") . " import des données e:$nb_err a:$nb_add m:$nb_edit a:$nb_arch");
+	$message = "$log";
+	update_option("bii_last_paserelle", time());
+	update_option("bii_last_paserelle_" . $from . "_" . $to, time());
+	mail("t.lecrosnier@hubb.fr", $subject, $message);
+	mail("t.poisson@hubb.fr", $subject, $message);
+//	mail("poissont@laposte.net", $subject, $message);
 }
 
 function bii_ajax_change_value() {
@@ -98,6 +121,37 @@ function bii_ajax_delete() {
 	include("ajax/ajax_delete.php");
 	die();
 }
+
+function bii_ajax_count_doublons() {
+	include("ajax/ajax_count_doublons.php");
+	die();
+}
+
+function bii_ajax_delete_doublons() {
+	include("ajax/ajax_delete_doublons_mail.php");
+	die();
+}
+
+function bii_ajax_delete_doublons_mail() {
+	$count = annonce::toDoDoublons("count");
+	$liste = annonce::toDoDoublons("return");
+
+	$subject = utf8_decode(get_bloginfo("name") . " Supression des doublons");
+	$message = "$count doublons \n\r";
+	$refprec = 0;
+	foreach ($liste as $id => $ref) {
+		$message.= "\n\r$id $ref";
+		if ($refprec == $ref) {
+			$message.= " Supprimmé";
+		}
+		$refprec = $ref;
+	}
+	annonce::toDoDoublons("delete");
+
+	mail("t.lecrosnier@hubb.fr", $subject, $message);
+	mail("t.poisson@hubb.fr", $subject, $message);
+}
+
 function bii_ajax_reload() {
 	include("ajax/ajax_reload_pictures.php");
 	die();
@@ -107,7 +161,9 @@ add_action('wp_ajax_bii_dezip', 'bii_ajax_dezip');
 add_action('wp_ajax_nopriv_bii_dezip', 'bii_ajax_dezip');
 
 
-add_action('bii_import', 'bii_ajax_import_wparams');
+add_action('bii_import', 'bii_ajax_import_wparams', 10, 2);
+add_action('bii_delete_doublons_mail', 'bii_ajax_delete_doublons_mail', 10, 2);
+add_action('wp_ajax_bii_import-test', 'bii_ajax_import_test');
 add_action('wp_ajax_bii_import', 'bii_ajax_import');
 add_action('wp_ajax_nopriv_bii_import', 'bii_ajax_import');
 
@@ -116,6 +172,12 @@ add_action('wp_ajax_nopriv_bii_change_value', 'bii_ajax_change_value');
 
 add_action('wp_ajax_bii_register_request', 'bii_register_request');
 add_action('wp_ajax_nopriv_bii_register_request', 'bii_register_request');
+
+add_action('wp_ajax_bii_count_doublons', 'bii_ajax_count_doublons');
+add_action('wp_ajax_nopriv_bii_count_doublons', 'bii_ajax_count_doublons');
+
+add_action('wp_ajax_bii_delete_doublons', 'bii_ajax_delete_doublons');
+add_action('wp_ajax_nopriv_bii_delete_doublons', 'bii_ajax_delete_doublons');
 
 add_action('wp_ajax_bii_delete', 'bii_ajax_delete');
 add_action('wp_ajax_nopriv_bii_delete', 'bii_ajax_delete');
@@ -128,3 +190,19 @@ add_action('wp_ajax_nopriv_bii_ajax_reload', 'bii_ajax_reload');
 
 register_deactivation_hook(__FILE__, 'bii_cron');
 register_activation_hook(__FILE__, 'bii_cron');
+register_activation_hook(__FILE__, 'bii_4daily_event');
+
+register_deactivation_hook(__FILE__, 'bii_cron_2');
+register_activation_hook(__FILE__, 'bii_cron_2');
+
+register_deactivation_hook(__FILE__, 'bii_cron_3');
+register_activation_hook(__FILE__, 'bii_cron_3');
+
+register_deactivation_hook(__FILE__, 'bii_cron_4');
+register_activation_hook(__FILE__, 'bii_cron_4');
+
+register_deactivation_hook(__FILE__, 'bii_cron_5');
+register_activation_hook(__FILE__, 'bii_cron_5');
+
+register_deactivation_hook(__FILE__, 'bii_cron_delete_doublons');
+register_activation_hook(__FILE__, 'bii_cron_delete_doublons');

@@ -1,4 +1,7 @@
-<?php do_action("bii_options_submit"); ?>
+<?php
+do_action("bii_options_submit");
+bii_custom_log("Accès dashboard");
+?>
 <div class="bii_dashboard">
 	<div class="message"><?php
 		if (isset($_SESSION["bii_message"])) {
@@ -20,12 +23,27 @@
 						<div class="col-xxs-12 pl-zdt bii_option hidden">
 							<h2 class="faa-parent animated-hover"><i class="fa fa-cogs faa-ring"></i> Zone de test</h2>
 							<div class="col-xxs-4">
-								<button class="btn btn-primary import" id="import-test" data-from="0" data-to="2"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Import test <i class="fa fa-spinner hidden"></i></button>
+								<button class="btn btn-primary import" id="import-test" data-from="0" data-to="10"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Import test <i class="fa fa-spinner hidden"></i></button>
 							</div>
-							<?php bii_makestuffbox("bii_last_paserelle", "Dernière passerelle", "text", "col-xxs-8"); ?>
-							<?php ?>
+
+							<div class="col-xxs-4">
+								<button class="btn btn-primary import-test" id="import-test-2"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Import test <i class="fa fa-spinner hidden"></i></button>
+							</div>
 						</div>
-					<?php } ?>
+					<ul>
+					
+						<?php
+						$annonces = annonce::all_id("code_insee = '76047' and is_archive = 0");
+						foreach($annonces as $id_annonce){
+							$annonce = new annonce($id_annonce);
+							$insee = $annonce->codeInsee();
+							?>
+						<li><?= $annonce->villeAAfficher(); ?> <?= $insee ?>  <?= villes_france::fromCodeInsee($insee)->ville_nom(); ?></li>
+					<?php
+						}
+					}
+					?>
+					</ul>
 					<div class="clear"></div>
 					<button class="publier btn btn-success hidden" accesskey="p" tabindex="5"><span class="fa fa-save"></span> Enregistrer les modifications</button>
 				</form>

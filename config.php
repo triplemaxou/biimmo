@@ -48,33 +48,46 @@ add_action("bii_options_submit", function() {
 }, 10);
 add_action("bii_options_title", function() {
 	?>
-	<li role="presentation" class="hide-relative hide-publier active" data-relative="pl-passerelle" title="Date de la dernière tentative de passerelle : <?= date("d/m/Y H:i:s",get_option("bii_last_paserelle_try")); ?>"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Passerelle</li>
+	<li role="presentation" class="hide-relative hide-publier active" data-relative="pl-passerelle" title="Date de la dernière tentative de passerelle : <?= date("d/m/Y H:i:s", get_option("bii_last_paserelle_try")); ?>"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Passerelle</li>
 	<?php
 }, 1);
 add_action("bii_options", function() {
 	$listereload = annonce::liste_reload();
 	$count = count($listereload);
-	$s= "s";
-	if($count == 1){
+	$s = "s";
+	if ($count == 1) {
 		$s = "";
 	}
+	$fromtolist = [
+		[0, 200],
+		[200, 400],
+		[400, 600],
+		[600, 800],
+		[800, 1000],
+	];
+	$i = 1;
 	?>	
 	<div class="col-xxs-12 pl-passerelle bii_option ">
-		<button class="btn btn-primary import" id="import-1" data-from="0" data-to="330" data-relative="pl-passerelle" title="Date de la dernière passerelle : <?= date("d/m/Y H:i:s",get_option("bii_last_paserelle_0_330")); ?>">
-			<i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 0 à 330 <i class="fa fa-spinner hidden"></i>
-		</button>
-		<button class="btn btn-primary import" id="import-2" data-from="330" data-to="660" title="Date de la dernière passerelle : <?= date("d/m/Y H:i:s",get_option("bii_last_paserelle_330_660")); ?>">
-			<i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 331 à 660 <i class="fa fa-spinner hidden"></i>
-		</button>
-		<button class="btn btn-primary import" id="import-3" data-from="660" data-to="990" title="Date de la dernière passerelle : <?= date("d/m/Y H:i:s",get_option("bii_last_paserelle_660_990")); ?>" >
-			<i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données 661 à 990 <i class="fa fa-spinner hidden"></i>
-		</button>
-		<button class="btn btn-primary vidercache" id="vidercache" title="Date de la dernière passerelle : <?= date("d/m/Y H:i:s",get_option("bii_last_paserelle")); ?>">
+		<?php
+		foreach ($fromtolist as $fromto) {
+			$from = $fromto[0];
+			$to = $fromto[1];
+			$from_ = $from . "_";
+			?>
+			<button class="btn btn-primary import" id="import-<?= $i; ?>" data-from="<?= $from; ?>" data-to="<?= $to; ?>" title="Date de la dernière passerelle : <?= date("d/m/Y H:i:s", get_option("bii_last_paserelle_$from_$to")); ?>" >
+				<i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Importer les données <?= $from; ?> à <?= $to; ?> <i class="fa fa-spinner hidden"></i>
+			</button>
+			<?php
+			++$i;
+		}
+		?>
+		<button class="btn btn-primary vidercache" id="vidercache" title="Date de la dernière passerelle : <?= date("d/m/Y H:i:s", get_option("bii_last_paserelle")); ?>">
 			<i class="fa fa-refresh"></i> Vider le cache
 		</button>
-		<?php if($count){ ?>
-		<button class="btn btn-warning reload">Il y a <?= $count; ?> bien<?= $s; ?> sans photos</button>
-		<?php }?>
+		<?php if ($count) { ?>
+			<button class="btn btn-warning reload">Il y a <?= $count; ?> bien<?= $s; ?> sans photos</button>
+		<?php } ?>
+			<button class="btn btn-info count-doublons">Voir le nombre de doublons <i class="fa fa-spinner hidden"></i></button>
 		<p>
 			<span class="expl-import hidden">
 				Veuillez patienter, cette opération peut prendre 10 minutes.
@@ -168,3 +181,70 @@ function autoRemplissageFilter() {
 
 	return $filter;
 }
+
+function bii_SC_nb_annonces($args = [], $content = null) {
+	$where = "1=1";
+	if (isset($args["where"])) {
+		$where = $args["where"];
+	}
+	return annonce::nb_annonces($where);
+}
+
+add_shortcode("bii_nb_biens", "bii_SC_nb_annonces");
+
+function bii_stripabvr($content) {
+	$toreplace = [
+		"arr.cuis.",
+		"chbres ",
+		"chbres.",
+		"chs,",
+		"gde ",
+		"Gde ",
+		"gd ",
+		"Gd ",
+		"cuis.",
+		"poss.",
+		"Poss.",
+		"amén.",
+		"corpo.",
+		"ch.",
+		"Chauff.",
+		"ind.",
+		"cuisine am.",
+		"chbr ",
+		"ds ",
+		"ds ",
+		"APPT ",
+		"PROCH ",
+		"SDD ",
+	];
+	$replace = [
+		"arrière cuisine",
+		"chambres ",
+		"chambres",
+		"chambres,",
+		"grande ",
+		"Grande ",
+		"grand ",
+		"Grand ",
+		"cuisine",
+		"possibilité",
+		"Possibilité",
+		"aménagée",
+		"copropriété",
+		"chambre",
+		"Chauffage",
+		"individuel",
+		"cuisine américaine",
+		"chambre ",
+		"dans ",
+		"Dans ",
+		"APPARTEMENT ",
+		"PROCHE ",
+		"salle de douche ",
+	];
+	$ret = str_replace($toreplace, $replace, $content);
+	return $ret;
+}
+
+add_filter("bii_immo_stripabvr", "bii_stripabvr", 10, 1);

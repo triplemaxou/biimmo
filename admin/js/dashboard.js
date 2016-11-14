@@ -50,7 +50,7 @@ jQuery(function ($) {
 //				alert(reponse);
 				location.reload();
 			},
-			error:function(){
+			error: function () {
 				alert("erreur");
 			}
 		});
@@ -147,9 +147,37 @@ jQuery(function ($) {
 					$("#import-3").trigger("click");
 				}
 				if ($this.attr("id") == "import-3") {
-					$("#vidercache").trigger("click");
-
+					$("#import-4").trigger("click");
 				}
+				if ($this.attr("id") == "import-4") {
+					$("#import-5").trigger("click");
+				}
+				if ($this.attr("id") == "import-5") {
+					$("#vidercache").trigger("click");
+				}
+			}
+		});
+
+	});
+	$("body").on("click", ".import-test", function (e) {
+		e.preventDefault();
+		var $this = $(this);
+		$this.find(".fa-spinner").removeClass("hidden").addClass("fa-pulse");
+		$(".expl-import").removeClass("hidden");
+		$(".ok-import").addClass("hidden");
+
+		$.ajax({
+			url: ajaxurl,
+			data: {
+				'action': 'bii_import-test'
+			},
+			dataType: 'html',
+			success: function (reponse) {
+				$(".expl-import").addClass("hidden");
+				$(".ok-import").removeClass("hidden");
+				$this.removeClass("btn-primary").addClass("btn-success");
+				$this.find(".fa-spinner").removeClass("fa-pulse");
+
 			}
 		});
 
@@ -174,6 +202,50 @@ jQuery(function ($) {
 				alert("Le cache va maintenant se vider");
 				var href = $("#wp-admin-bar-purge-all a").attr("href");
 				window.location = href;
+			}
+		});
+	});
+	$("body").one("click load", ".count-doublons", function (e) {
+		e.preventDefault();
+		var $this = $(this);
+		$this.find(".fa-spinner").removeClass("hidden").addClass("fa-pulse");
+		$.ajax({
+			url: ajaxurl,
+			data: {
+				'action': 'bii_count_doublons'
+			},
+			dataType: 'html',
+			success: function (reponse) {
+				if (reponse > 0) {
+					$this.html('Il y a <strong>' + reponse + '</strong> doublons. Cliquer pour supprimmer <i class="fa fa-spinner hidden"></i>');
+
+					$this.addClass("delete-doublons").removeClass("count-doublons");
+				} else {
+					$this.html("Il n'y a aucun doublon parmi les biens");
+
+				}
+			},
+			error: function () {
+				$this.html('Erreur');
+			}
+		});
+	});
+	$("body").on("click", ".delete-doublons", function (e) {
+		e.preventDefault();
+		var $this = $(this);
+		$this.find(".fa-spinner").removeClass("hidden").addClass("fa-pulse");
+		$.ajax({
+			url: ajaxurl,
+			data: {
+				'action': 'bii_delete_doublons'
+			},
+			dataType: 'html',
+			success: function (reponse) {
+				$this.html('Doublons supprimmés');
+				$("#vidercache").trigger("click");
+			},
+			error: function () {
+				$this.html('Erreur');
 			}
 		});
 	});

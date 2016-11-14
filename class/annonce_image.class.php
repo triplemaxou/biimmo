@@ -31,7 +31,7 @@ class annonce_image extends bii_items {
 		<option class="text" value="etag" data-oldval="etag" >Etag</option>
 		<?php
 	}
-	
+
 	static function getListeProprietes() {
 		$array = array(
 			"id" => "id",
@@ -135,6 +135,7 @@ class annonce_image extends bii_items {
 		$where = "id_annonce = '$id_annonce'";
 		static::deleteWhere($where);
 	}
+
 	public static function deleteFromReference($ref) {
 		$where = "id_annonce in (SELECT id from annonce where reference = '$ref')";
 		static::deleteWhere($where);
@@ -143,7 +144,7 @@ class annonce_image extends bii_items {
 	static function deleteWhere($where = "") {
 		$liste = static::all_id($where);
 		foreach ($liste as $id) {
-			
+
 			static::deleteStatic($id);
 		}
 	}
@@ -172,20 +173,27 @@ class annonce_image extends bii_items {
 		return str_replace("http://lemaistre.bbimmo.pro//photo/biens/", "", $this->photo);
 	}
 
-	public function addAttachement($id_post) {
-
+	public function addAttachement($id_post = 0) {
+		$wp_upload_dir = wp_upload_dir();
 		$year = $this->year();
 		$month = $this->month();
-		$url_depl = "/web/clients/lemdev/www.lemaistre-immo.fr/wp-content/uploads/$year/$month/" . $this->photo_name();
+		$dir = "/web/clients/lemdev/www.lemaistre-immo.fr/wp-content/uploads/img_bien/$year/$month/";
+		$url_depl = $dir . $this->photo_name();
+		if (!file_exists($dir)) {
+			mkdir($dir,0755,true);
+		}
 		if (!file_exists($url_depl)) {
 			$url = $this->photo;
+			
 			try {
 				if (@copy($url, $url_depl)) {
 //					echo "<br/>$url moved to $url_depl <br/>";
+//					bii_custom_log("$url moved to $url_depl ", "Photos insérées");
 				} else {
 					$data = file_get_contents($url);
 					file_put_contents($url_depl, $data);
 //					echo "<br/>$url put to $url_depl <br/>";
+					bii_custom_log("$url put to $url_depl ", "Photos insérées");
 				}
 			} catch (Exception $e) {
 				$message = $e->getMessage();
@@ -201,7 +209,7 @@ class annonce_image extends bii_items {
 		$filetype = wp_check_filetype(basename($filename), null);
 
 		// Get the path to the upload directory.
-		$wp_upload_dir = wp_upload_dir();
+
 		$guid = $wp_upload_dir['url'] . '/' . basename($filename);
 		$where = "guid = '" . $guid . "'";
 		if (!posts::nb($where)) {
@@ -216,7 +224,7 @@ class annonce_image extends bii_items {
 
 			// Insert the attachment.
 			$attach_id = wp_insert_attachment($attachment, $filename, $parent_post_id);
-			
+
 
 			// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
 			require_once( ABSPATH . 'wp-admin/includes/image.php' );
@@ -224,11 +232,12 @@ class annonce_image extends bii_items {
 			// Generate the metadata for the attachment, and update the database record.
 			$attach_data = wp_generate_attachment_metadata($attach_id, $filename);
 			wp_update_attachment_metadata($attach_id, $attach_data);
-			$this->updateChamps($attach_id, "attach_id");
-			set_post_thumbnail($parent_post_id, $attach_id);
 		} else {
 			$attach_id = posts::fromGuid($guid, "id");
-			$this->updateChamps($attach_id, "attach_id");
+		}
+
+		$this->updateChamps($attach_id, "attach_id");
+		if ($parent_post_id) {
 			set_post_thumbnail($parent_post_id, $attach_id);
 		}
 		return $attach_id;
@@ -250,7 +259,7 @@ class annonce_image extends bii_items {
 		?>
 		<td class="attach_id">			
 			<a class="btn btn-success" target="_blank" data-id="<?php echo $this->id; ?>" href="/post.php?post=<?= $attach_id ?>&action=edit" >
-		<?= $attach_id ?>
+				<?= $attach_id ?>
 			</a>		
 		</td>
 		<?php
@@ -266,34 +275,35 @@ class annonce_image extends bii_items {
 		<?php
 	}
 
-	public function purge(){
+	public function purge() {
 		echo $this->attach_id;
-		if(false === wp_delete_attachment($this->attach_id,true)){
+		if (false === wp_delete_attachment($this->attach_id, true)) {
 			echo "impossible de supprimer $this->attach_id ";
 		}
 	}
-	
-	
-	public static function listeEtag($where){
+
+	public static function listeEtag($where) {
 		$liste = static::all_id($where);
 		$etags = [];
-		foreach($liste as $id){
+		foreach ($liste as $id) {
 			$item = new static($id);
 			$etags[] = $item->etag;
 		}
 		return $etags;
 	}
-	
-	public static function etagExists($etag){
+
+	public static function etagExists($etag) {
 		return static::nb("etag = '$etag'");
 	}
-	public static function fromEtag($etag){
-		$list =  static::all_id("etag = '$etag'");
+
+	public static function fromEtag($etag) {
+		$list = static::all_id("etag = '$etag'");
 		$item = new static($list[0]);
 		return $item;
 	}
-	
-	public static function deleteFromEtag($etag){
+
+	public static function deleteFromEtag($etag) {
 		static::deleteWhere("etag = '$etag'");
 	}
+
 }
