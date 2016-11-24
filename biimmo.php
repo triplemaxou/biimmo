@@ -3,13 +3,13 @@
 /*
   Plugin Name: Biimmo
   Description: Gestion du carnet de biens d'une agence immobilière.
-  Version: 1.5
+  Version: 1.6
   Author: Biilink Agency
   Author URI: http://biilink.com/
   License: GPL2
  */
 
-define('Biimmo_version', '1.5');
+define('Biimmo_version', '1.6');
 define('bii_immo_path', plugin_dir_path(__FILE__));
 define('bii_immo_url', plugin_dir_url(__FILE__));
 
@@ -102,9 +102,7 @@ function bii_ajax_import_wparams($from, $to) {
 	$message = "$log";
 	update_option("bii_last_paserelle", time());
 	update_option("bii_last_paserelle_" . $from . "_" . $to, time());
-	mail("t.lecrosnier@hubb.fr", $subject, $message);
-	mail("t.poisson@hubb.fr", $subject, $message);
-//	mail("poissont@laposte.net", $subject, $message);
+	mail("web@groupejafor.fr", $subject, $message);
 }
 
 function bii_ajax_change_value() {
@@ -148,8 +146,7 @@ function bii_ajax_delete_doublons_mail() {
 	}
 	annonce::toDoDoublons("delete");
 
-	mail("t.lecrosnier@hubb.fr", $subject, $message);
-	mail("t.poisson@hubb.fr", $subject, $message);
+	mail("web@groupejafor.fr", $subject, $message);
 }
 
 function bii_ajax_reload() {

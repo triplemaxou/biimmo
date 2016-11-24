@@ -30,20 +30,20 @@ bii_custom_log("Accès dashboard");
 								<button class="btn btn-primary import-test" id="import-test-2"><i class="fa fa-arrow-right"></i><i class="fa fa-database"></i> Import test <i class="fa fa-spinner hidden"></i></button>
 							</div>
 						</div>
-					<ul>
-					
+
 						<?php
-						$annonces = annonce::all_id("code_insee = '76047' and is_archive = 0");
-						foreach($annonces as $id_annonce){
-							$annonce = new annonce($id_annonce);
-							$insee = $annonce->codeInsee();
-							?>
-						<li><?= $annonce->villeAAfficher(); ?> <?= $insee ?>  <?= villes_france::fromCodeInsee($insee)->ville_nom(); ?></li>
-					<?php
 						}
-					}
+						$annonce = new annonce(6733);
+						echo $annonce->metaTitle();
+						echo "<br />";
+						echo $annonce->metaDescription();
+						echo "<br />";
+						$annonce2 = annonce::fromIdentifiant(308633);
+						echo $annonce2->metaTitle();
+						echo "<br />";
+						echo $annonce2->metaDescription();
 					?>
-					</ul>
+
 					<div class="clear"></div>
 					<button class="publier btn btn-success hidden" accesskey="p" tabindex="5"><span class="fa fa-save"></span> Enregistrer les modifications</button>
 				</form>

@@ -263,6 +263,11 @@ class annonce extends bii_items {
 
 		return $ville;
 	}
+	
+	public function villeAAffichernorm(){
+		$ville = $this->villeAAfficher();
+		return ucwords(strtolower($ville));
+	}
 
 	public function villeAAfficherAvecCP() {
 		$ville = strtoupper($this->villeAAfficher());
@@ -578,12 +583,21 @@ class annonce extends bii_items {
 		$array["post_type"] = "property";
 		return $array;
 	}
+	
+	public function buildlink(){
+		$link = str_replace("²", "-carres", $this->titre());
+//		$link = str_replace("²", "-carres", $this->titre());
+		
+		$link = stripAccentsLiens($link);
+		$link = str_replace("-0-m-carres", "", $link);
+		return $link;
+	}
 
 	private function arrayPost_shandora($id_post = 0) {
 		$post = array(
 			'ID' => $id_post // Are you updating an existing post?
 			, 'post_content' => $this->encodetexte() // The full text of the post.
-			, 'post_name' => stripAccentsLiens(utf8_encode($this->titre())) // The name (slug) for your post
+			, 'post_name' => $this->buildlink() // The name (slug) for your post
 			, 'post_title' => $this->titre() // The title of your post.
 			, 'post_status' => "publish" // Default 'draft'.
 			, 'post_type' => "listing" // Default 'post'.
@@ -690,7 +704,39 @@ class annonce extends bii_items {
 		}
 		return $dept;
 	}
+	
+	
 
+	public function metaTitle(){
+		$name = get_bloginfo("name");
+
+		$article = "le";
+		$type_bien = "un bien";
+		if ($this->type_bien()) {
+			$type_bien = $this->type_bien();
+		}
+		$surface = "";
+		if ($this->surface()) {
+			$surface = " de " . $this->surface_string();
+		}
+		$type_trans = "";
+		if ($this->type_transaction()) {
+			$type_trans = " en " . $this->type_transaction();
+		}
+		$ville = "";
+		if($this->ville){
+			$ville = $this->villeAAffichernorm();
+		}
+		
+		$departement = "";
+		if ($this->departement_nom()) {
+			$dept = $this->departement_nom($article);
+			$departement = " dans $article $dept";
+		}
+		$titl = "$name $ville : $type_bien$type_trans$surface";
+		return $titl;
+	}
+	
 	public function metaDescription() {
 		$name = get_bloginfo("name");
 		$ce = "ce";
@@ -714,7 +760,10 @@ class annonce extends bii_items {
 			$dept = $this->departement_nom($article);
 			$departement = " dans $article $dept";
 		}
-		$desc = "$name vous propose $type_bien$surface$type_trans$departement";
+		if($this->ville){
+			$ville = " à ".$this->villeAAffichernorm();
+		}
+		$desc = "$name vous propose $type_bien$surface$type_trans$ville$departement";
 		return $desc;
 	}
 
@@ -722,8 +771,8 @@ class annonce extends bii_items {
 		$name = static::themename();
 		$method_name = "map_postMeta_$name";
 		$array = $this->$method_name();
-
 		$array["_yoast_wpseo_metadesc"] = $this->metaDescription();
+		$array["_yoast_wpseo_title"] = $this->metaTitle();
 		return $array;
 	}
 
