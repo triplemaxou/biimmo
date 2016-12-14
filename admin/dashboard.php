@@ -38,10 +38,14 @@ bii_custom_log("Accès dashboard");
 						echo "<br />";
 						echo $annonce->metaDescription();
 						echo "<br />";
+						echo $annonce->altfirst();
+						echo "<br />";
 						$annonce2 = annonce::fromIdentifiant(308633);
 						echo $annonce2->metaTitle();
 						echo "<br />";
 						echo $annonce2->metaDescription();
+						echo "<br />";
+						echo $annonce2->altfirst();
 					?>
 
 					<div class="clear"></div>

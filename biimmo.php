@@ -3,13 +3,13 @@
 /*
   Plugin Name: Biimmo
   Description: Gestion du carnet de biens d'une agence immobilière.
-  Version: 1.6
+  Version: 1.7
   Author: Biilink Agency
   Author URI: http://biilink.com/
   License: GPL2
  */
 
-define('Biimmo_version', '1.6');
+define('Biimmo_version', '1.7');
 define('bii_immo_path', plugin_dir_path(__FILE__));
 define('bii_immo_url', plugin_dir_url(__FILE__));
 

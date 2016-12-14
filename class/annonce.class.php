@@ -263,8 +263,8 @@ class annonce extends bii_items {
 
 		return $ville;
 	}
-	
-	public function villeAAffichernorm(){
+
+	public function villeAAffichernorm() {
 		$ville = $this->villeAAfficher();
 		return ucwords(strtolower($ville));
 	}
@@ -450,22 +450,6 @@ class annonce extends bii_items {
 		return $this->nb_chambre;
 	}
 
-	public function titre() {
-		$ville = $this->villeAAfficher();
-		$type = ucfirst($this->type_bien);
-		$action = $this->action_bien();
-		if ($this->type_bien() != "garage" && $this->type_bien() != "terrain") {
-			$pieces = $this->nb_piece_string();
-			$surface = $this->surface_string();
-//			$titre = "$ville - $type $pieces $action - $surface";
-			$titre = "$type $pieces $action - $surface";
-		} else {
-//			$titre = "$ville - $type $action";
-			$titre = "$type $action";
-		}
-		return $titre;
-	}
-
 	function texte() {
 		$texte = str_replace("€", "&euro;", $this->description_internet);
 		$texte = str_replace("&#8364;", "&euro;", $texte);
@@ -583,11 +567,11 @@ class annonce extends bii_items {
 		$array["post_type"] = "property";
 		return $array;
 	}
-	
-	public function buildlink(){
+
+	public function buildlink() {
 		$link = str_replace("²", "-carres", $this->titre());
 //		$link = str_replace("²", "-carres", $this->titre());
-		
+
 		$link = stripAccentsLiens($link);
 		$link = str_replace("-0-m-carres", "", $link);
 		return $link;
@@ -704,10 +688,71 @@ class annonce extends bii_items {
 		}
 		return $dept;
 	}
-	
-	
 
-	public function metaTitle(){
+	public function titlefirst() {
+		$article = "le";
+		$type_bien = "un bien";
+		if ($this->type_bien()) {
+			$type_bien = $this->type_bien();
+		}
+		$surface = "";
+		if ($this->surface()) {
+			$surface = " de " . $this->surface_string();
+		}
+		$type_trans = "";
+		if ($this->type_transaction()) {
+			$type_trans = " en " . $this->type_transaction();
+		}
+		$ville = "";
+		if ($this->ville) {
+			$ville = $this->villeAAffichernorm();
+		}
+
+		$departement = "";
+		if ($this->departement_nom()) {
+			$dept = $this->departement_nom($article);
+			$departement = " dans $article $dept";
+		}
+		$titl = "$ville : $type_bien$type_trans$surface";
+		return $titl;
+	}
+
+	public function altfirst() {
+		$type_bien = "Immobilier";
+		if ($this->type_bien()) {
+			$type_bien = ucfirst($this->type_bien());
+		}
+		$ville = "";
+		if ($this->ville) {
+			$ville = $this->villeAAffichernorm();
+		}
+		$dept = "";
+		if ($this->departement()) {
+			$dept = " (" . $this->departement() . ")";
+		}
+		return "$type_bien $ville$dept";
+	}
+
+	public function titre() {
+//		$ville = $this->villeAAfficher();
+		$type = ucfirst($this->type_bien);
+		$action = $this->action_bien();
+		if ($this->type_bien() != "garage" && $this->type_bien() != "terrain") {
+			$pieces = $this->nb_piece_string();
+			$surface = "";
+			if ($this->surface()) {
+				$surface = " - " . $this->surface_string();
+			}
+//			$titre = "$ville - $type $pieces $action - $surface";
+			$titre = "$type $pieces $action$surface";
+		} else {
+//			$titre = "$ville - $type $action";
+			$titre = "$type $action";
+		}
+		return $titre;
+	}
+
+	public function metaTitle() {
 		$name = get_bloginfo("name");
 
 		$article = "le";
@@ -724,10 +769,10 @@ class annonce extends bii_items {
 			$type_trans = " en " . $this->type_transaction();
 		}
 		$ville = "";
-		if($this->ville){
+		if ($this->ville) {
 			$ville = $this->villeAAffichernorm();
 		}
-		
+
 		$departement = "";
 		if ($this->departement_nom()) {
 			$dept = $this->departement_nom($article);
@@ -736,7 +781,7 @@ class annonce extends bii_items {
 		$titl = "$name $ville : $type_bien$type_trans$surface";
 		return $titl;
 	}
-	
+
 	public function metaDescription() {
 		$name = get_bloginfo("name");
 		$ce = "ce";
@@ -760,8 +805,8 @@ class annonce extends bii_items {
 			$dept = $this->departement_nom($article);
 			$departement = " dans $article $dept";
 		}
-		if($this->ville){
-			$ville = " à ".$this->villeAAffichernorm();
+		if ($this->ville) {
+			$ville = " à " . $this->villeAAffichernorm();
 		}
 		$desc = "$name vous propose $type_bien$surface$type_trans$ville$departement";
 		return $desc;
@@ -773,6 +818,8 @@ class annonce extends bii_items {
 		$array = $this->$method_name();
 		$array["_yoast_wpseo_metadesc"] = $this->metaDescription();
 		$array["_yoast_wpseo_title"] = $this->metaTitle();
+		$array["alt_for_first_image"] = $this->altfirst();
+		$array["title_for_first_image"] = $this->titlefirst();
 		return $array;
 	}
 
@@ -1357,80 +1404,80 @@ class annonce extends bii_items {
 		$categorieOffre = $this->categorieOffre;
 		?>
 		<td class="categorieOffre">						
-		<?= $categorieOffre ?>				
+			<?= $categorieOffre ?>				
 		</td>
-			<?php
-		}
+		<?php
+	}
 
-		public function typeBien_ligneIA() {
-			$typeBien = $this->typeBien;
-			?>
+	public function typeBien_ligneIA() {
+		$typeBien = $this->typeBien;
+		?>
 		<td class="typeBien">						
-		<?= $typeBien ?>
+			<?= $typeBien ?>
 		</td>
-			<?php
-		}
+		<?php
+	}
 
-		public function dateCreation_ligneIA() {
-			$dateCreation = $this->dateCreation;
-			?>
+	public function dateCreation_ligneIA() {
+		$dateCreation = $this->dateCreation;
+		?>
 		<td class="dateCreation">						
-		<?= $dateCreation ?>
+			<?= $dateCreation ?>
 		</td>
-			<?php
-		}
+		<?php
+	}
 
-		public function dateModification_ligneIA() {
-			$dateModification = $this->dateModification;
-			?>
+	public function dateModification_ligneIA() {
+		$dateModification = $this->dateModification;
+		?>
 		<td class="dateModification">						
-		<?= $dateModification ?>
+			<?= $dateModification ?>
 		</td>
-			<?php
-		}
+		<?php
+	}
 
-		public function id_post_ligneIA() {
-			$id_post = $this->id_post;
-			?>
+	public function id_post_ligneIA() {
+		$id_post = $this->id_post;
+		?>
 		<td class="id_post">			
 			<a class="btn btn-success" target="_blank" data-id="<?php echo $this->id; ?>" href="/wp-admin/post.php?post=<?= $id_post ?>&action=edit" >
-		<?= $id_post ?>
+				<?= $id_post ?>
 			</a>		
 		</td>
-				<?php
-			}
+		<?php
+	}
 
-			public function titre_ligneIA() {
-				$titre = $this->titre();
-				?>
+	public function titre_ligneIA() {
+		$titre = $this->titre();
+		?>
 		<td class="titre">			
 
-		<?= $titre ?>
+			<?= $titre ?>
 
 		</td>
-			<?php
-		}
-
-		public function is_archive_ligneIA() {
-
-			$radios = array("Non" => "success", "Oui" => "danger");
-			$is_archive = $this->is_archive;
-			$val = "Non";
-			if ($is_archive == 1) {
-				$val = "Oui";
-			}
-			?>
-		<td class="statut"> 
 		<?php
-		foreach ($radios as $value => $color) {
-			$checked = "";
-			if ($val == $value) {
-				$checked = " <i class='fa fa-check-square-o'></i>";
-				$color = "$color go-$color";
-			} else {
-				$color = "default go-$color";
-			}
-			?>
+	}
+
+	public function is_archive_ligneIA() {
+
+		$radios = array("Non" => "success", "Oui" => "danger");
+		$is_archive = $this->is_archive;
+		$val = "Non";
+		if ($is_archive == 1) {
+			$val = "Oui";
+		}
+		?>
+		<td class="statut"> 
+			<?php
+			foreach ($radios as $value => $color) {
+				$checked = "";
+				if ($val == $value) {
+					$checked = " <i class='fa fa-check-square-o'></i>";
+					$color = "$color go-$color";
+				} else {
+					$color = "default go-$color";
+				}
+				?>
 				<button class="btn btn-<?php echo $color; ?> change-statut" data-id="<?php echo $this->id; ?>" ><?php echo ucfirst($value . $checked); ?></button>
 
 				<?php
@@ -1438,15 +1485,15 @@ class annonce extends bii_items {
 //			echo $this->have("ascenseur");
 			?>
 		</td>
-			<?php
-		}
+		<?php
+	}
 
-		public function purge_image() {
-			
-		}
+	public function purge_image() {
+		
+	}
 
-		public function purge_image_ligneIA() {
-			?>
+	public function purge_image_ligneIA() {
+		?>
 		<td class="statut"> 
 			<button class="btn btn-warning purgeimages" data-id="<?php echo $this->id; ?>" >
 				<span class="fa-stack">
@@ -1461,108 +1508,108 @@ class annonce extends bii_items {
 	public function taxonomy_features_ligneIA() {
 		?>
 		<td class="taxonomy_features"> 
-		<?php
-		$tf = $this->taxonomy_features();
-		$sep = "";
-		foreach ($tf as $f) {
-			echo "$sep$f";
-			$sep = ", ";
-		}
-		$this->insertTaxonomy();
-		?>
-		</td>
 			<?php
-		}
-
-		public static function maxPrix() {
-			$prix = "1000000";
-			$prefix = static::prefix_bdd();
-			$class_name = static::nom_classe_bdd();
-			$req = "select max(prix) as maximum from $prefix$class_name WHERE is_archive = 0";
-//		consoleLog($req);
-			$pdo = static::getPDO();
-			$select = $pdo->query($req);
-			while ($row = $select->fetch()) {
-				$prix = $row["maximum"];
+			$tf = $this->taxonomy_features();
+			$sep = "";
+			foreach ($tf as $f) {
+				echo "$sep$f";
+				$sep = ", ";
 			}
-			$pdo = null;
-			return $prix;
-		}
-
-		public static function maxSurf() {
-			$surf = "1600";
-			$prefix = static::prefix_bdd();
-			$class_name = static::nom_classe_bdd();
-			$req = "select max(surface_habitable + surface_jardin) as maximum from $prefix$class_name WHERE is_archive = 0";
-//		consoleLog($req);
-			$pdo = static::getPDO();
-			$select = $pdo->query($req);
-			while ($row = $select->fetch()) {
-				$surf = $row["maximum"];
-			}
-			$pdo = null;
-			return $surf;
-		}
-
-		public function list_usertosent() {
-			$list = users::users_alert();
-			$listtosend = [];
-			foreach ($list as $user_id => $list_rs) {
-				$send = false;
-				foreach ($list_rs as $rs) {
-					if ($this->is_inrs($rs)) {
-						$send = true;
-					}
-				}
-				if ($send) {
-					$listtosend = [$user_id];
-				}
-			}
-			return $listtosend;
-		}
-
-		public function is_inrs($rs) {
-			//a:10:{
-			//	s:7:"keyword";s:8:"LE HAVRE";
-			//	s:11:"property-id";s:0:"";
-			//	s:4:"type";s:11:"appartement";
-			//	s:9:"bathrooms";s:1:"1";
-			//	s:9:"max-price";s:6:"200000";
-			//	s:9:"min-price";s:1:"0";
-			//	s:13:"max-price-all";s:7:"1050000";
-			//	s:8:"min-area";s:2:"80";
-			//	s:8:"max-area";s:3:"100";
-			//	s:8:"features";a:2:{
-			//		i:0;s:10:"interphone";
-			//		i:1;s:6:"balcon";}
-			//	}
-		}
-
-		public function lien() {
-			$lien = get_permalink($this->id_post());
-			return $lien;
-		}
-
-		public static function mailFromListe($liste, $limit = 0) {
-			pre($liste, "green");
-			ob_start();
-			static::headermail();
-			$i = 1;
-			foreach ($liste as $id) {
-				if ($limit != 0 && $i <= $limit) {
-					$annonce = new annonce($id);
-					$annonce->displayAnnonceMail($i);
-				}
-				++$i;
-			}
-			static::footermail();
-			$email_body = ob_get_contents();
-			ob_end_clean();
-			return $email_body;
-		}
-
-		public static function headermail() {
+			$this->insertTaxonomy();
 			?>
+		</td>
+		<?php
+	}
+
+	public static function maxPrix() {
+		$prix = "1000000";
+		$prefix = static::prefix_bdd();
+		$class_name = static::nom_classe_bdd();
+		$req = "select max(prix) as maximum from $prefix$class_name WHERE is_archive = 0";
+//		consoleLog($req);
+		$pdo = static::getPDO();
+		$select = $pdo->query($req);
+		while ($row = $select->fetch()) {
+			$prix = $row["maximum"];
+		}
+		$pdo = null;
+		return $prix;
+	}
+
+	public static function maxSurf() {
+		$surf = "1600";
+		$prefix = static::prefix_bdd();
+		$class_name = static::nom_classe_bdd();
+		$req = "select max(surface_habitable + surface_jardin) as maximum from $prefix$class_name WHERE is_archive = 0";
+//		consoleLog($req);
+		$pdo = static::getPDO();
+		$select = $pdo->query($req);
+		while ($row = $select->fetch()) {
+			$surf = $row["maximum"];
+		}
+		$pdo = null;
+		return $surf;
+	}
+
+	public function list_usertosent() {
+		$list = users::users_alert();
+		$listtosend = [];
+		foreach ($list as $user_id => $list_rs) {
+			$send = false;
+			foreach ($list_rs as $rs) {
+				if ($this->is_inrs($rs)) {
+					$send = true;
+				}
+			}
+			if ($send) {
+				$listtosend = [$user_id];
+			}
+		}
+		return $listtosend;
+	}
+
+	public function is_inrs($rs) {
+		//a:10:{
+		//	s:7:"keyword";s:8:"LE HAVRE";
+		//	s:11:"property-id";s:0:"";
+		//	s:4:"type";s:11:"appartement";
+		//	s:9:"bathrooms";s:1:"1";
+		//	s:9:"max-price";s:6:"200000";
+		//	s:9:"min-price";s:1:"0";
+		//	s:13:"max-price-all";s:7:"1050000";
+		//	s:8:"min-area";s:2:"80";
+		//	s:8:"max-area";s:3:"100";
+		//	s:8:"features";a:2:{
+		//		i:0;s:10:"interphone";
+		//		i:1;s:6:"balcon";}
+		//	}
+	}
+
+	public function lien() {
+		$lien = get_permalink($this->id_post());
+		return $lien;
+	}
+
+	public static function mailFromListe($liste, $limit = 0) {
+		pre($liste, "green");
+		ob_start();
+		static::headermail();
+		$i = 1;
+		foreach ($liste as $id) {
+			if ($limit != 0 && $i <= $limit) {
+				$annonce = new annonce($id);
+				$annonce->displayAnnonceMail($i);
+			}
+			++$i;
+		}
+		static::footermail();
+		$email_body = ob_get_contents();
+		ob_end_clean();
+		return $email_body;
+	}
+
+	public static function headermail() {
+		?>
 		<!doctype html>
 		<html xmlns="http://www.w3.org/1999/xhtml">
 			<head></head>
@@ -1570,11 +1617,11 @@ class annonce extends bii_items {
 				<div class="liste_annonce" style="max-width:600px;width:100%;">
 					<table><tbody>
 							<tr>
-		<?php
-	}
+								<?php
+							}
 
-	public static function footermail() {
-		?>
+							public static function footermail() {
+								?>
 							</tr>
 						</tbody></table>
 				</div>
@@ -1588,11 +1635,11 @@ class annonce extends bii_items {
 
 		<mj-body>
 			<mj-section>
-		<?php
-	}
+				<?php
+			}
 
-	public static function footermailMjml() {
-		?>
+			public static function footermailMjml() {
+				?>
 
 			</mj-section>
 		</mj-body>
@@ -1640,8 +1687,8 @@ class annonce extends bii_items {
 
 						<div class="detail" style="height:130px;">
 							<h5 class="price" ><span style="color:#cd1719;">
-		<?= $prix; ?> €</span><small> - <?= $type_bien; ?></small>            </h5>
-		<?= $description; ?>
+									<?= $prix; ?> €</span><small> - <?= $type_bien; ?></small>            </h5>
+									<?= $description; ?>
 
 						</div>
 
@@ -1655,32 +1702,32 @@ class annonce extends bii_items {
 					</article>
 				</div>
 			</td>
-		<?php
-	}
+			<?php
+		}
 
-	public function displayAnnonceMailMjml($i) {
+		public function displayAnnonceMailMjml($i) {
 
-		$lien = $this->lien();
-		$titre = $this->titre();
-		$srcthumb = wp_get_attachment_image_src(get_post_thumbnail_id($this->id_post))[0];
+			$lien = $this->lien();
+			$titre = $this->titre();
+			$srcthumb = wp_get_attachment_image_src(get_post_thumbnail_id($this->id_post))[0];
 //		pre($srcthumb,"red");
-		$type_bien = $this->type_bien();
-		$type_trans = $this->type_transaction();
-		$text_caption = ucfirst("$type_bien en $type_trans");
-		$prix = $this->prix();
-		$liendesc = "";
-		$description = utf8_encode(static::tronquer($this->description_internet(), 100, $liendesc));
-		$surface = $this->surface_string();
-		$chambres = $this->nb_string("nb_chambre", "chambre");
-		$pieces = $this->nb_string("nb_piece", "pièce");
-		if ($i % 2 == 1 && $i != 1) {
-			?></mj-section><mj-section><?php
+			$type_bien = $this->type_bien();
+			$type_trans = $this->type_transaction();
+			$text_caption = ucfirst("$type_bien en $type_trans");
+			$prix = $this->prix();
+			$liendesc = "";
+			$description = utf8_encode(static::tronquer($this->description_internet(), 100, $liendesc));
+			$surface = $this->surface_string();
+			$chambres = $this->nb_string("nb_chambre", "chambre");
+			$pieces = $this->nb_string("nb_piece", "pièce");
+			if ($i % 2 == 1 && $i != 1) {
+				?></mj-section><mj-section><?php
 			}
 			?>
 
 			<mj-column background-color="#fafafa">
 				<mj-text font-size="24px"  font-family="helvetica" color="#92A1BB">
-		<?= $titre; ?>
+					<?= $titre; ?>
 				</mj-text>
 				<mj-image href="<?= $lien; ?>" align="center" width="150" height="150" src="<?= $srcthumb ?>"></mj-image>
 
@@ -1688,18 +1735,18 @@ class annonce extends bii_items {
 				<mj-section background-color="#fafafa">
 					<mj-column background-color="#fafafa">
 						<mj-text font-size="15px" color="#cd1719" font-family="helvetica" align="center">
-		<?= $prix; ?> €
+							<?= $prix; ?> €
 						</mj-text>
 					</mj-column>
 					<mj-column background-color="#fafafa">
 						<mj-text font-size="12px" color="#000" font-family="helvetica" align="center">
-		<?= $text_caption; ?>
+							<?= $text_caption; ?>
 						</mj-text>
 					</mj-column>
 				</mj-section>
 				<mj-section background-color="#fafafa">
 					<mj-text font-size="20px"  font-family="helvetica">
-		<?= $description; ?>
+						<?= $description; ?>
 					</mj-text>
 					<mj-button href="<?= $lien; ?>">Voir +</mj-button>
 				</mj-section>
@@ -1717,31 +1764,32 @@ class annonce extends bii_items {
 			</mj-column>
 
 
-		<?php
-	}
-
-	public static function liste_reload() {
-		$req = 'ID NOT IN '
-			. '( '
-			. 'select meta.post_id from wp_987abc_posts as post '
-			. 'right join wp_987abc_postmeta as meta on post.ID = meta.post_id '
-			. 'where post_type = "property" '
-			. 'AND post_status = "publish" '
-			. 'AND meta_key = "_thumbnail_id"'
-			. ') '
-			. 'AND LENGTH(post_content) > 3 '
-			. 'AND post_status = "publish" AND post_type = "property" '
-			. 'ORDER BY ID ASC';
-		$liste = posts::all_id($req);
-		$liste_annonce = [];
-		foreach ($liste as $id_post) {
-			$liste_annonce[] = static::fromPost($id_post);
+			<?php
 		}
-		return $liste_annonce;
-	}
 
-	public static function nb_annonces($where = "1=1") {
-		return static::nb("is_archive = 0 AND $where");
-	}
+		public static function liste_reload() {
+			$req = 'ID NOT IN '
+				. '( '
+				. 'select meta.post_id from wp_987abc_posts as post '
+				. 'right join wp_987abc_postmeta as meta on post.ID = meta.post_id '
+				. 'where post_type = "property" '
+				. 'AND post_status = "publish" '
+				. 'AND meta_key = "_thumbnail_id"'
+				. ') '
+				. 'AND LENGTH(post_content) > 3 '
+				. 'AND post_status = "publish" AND post_type = "property" '
+				. 'ORDER BY ID ASC';
+			$liste = posts::all_id($req);
+			$liste_annonce = [];
+			foreach ($liste as $id_post) {
+				$liste_annonce[] = static::fromPost($id_post);
+			}
+			return $liste_annonce;
+		}
 
-}
+		public static function nb_annonces($where = "1=1") {
+			return static::nb("is_archive = 0 AND $where");
+		}
+
+	}
+	
