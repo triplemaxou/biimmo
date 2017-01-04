@@ -27,6 +27,6 @@ $subject = utf8_decode(get_bloginfo("name") . " import des données e:$nb_err a:
 $message = "$log";
 update_option("bii_last_paserelle",time());
 update_option("bii_last_paserelle_".$from."_".$to,time());
-//mail("t.lecrosnier@hubb.fr", $subject, $message);
-mail("t.poisson@hubb.fr", $subject, $message);
+mail("m.duvalet@hubb.fr", $subject, $message);
+//mail("web@groupejador.fr", $subject, $message);
 bii_custom_log("Fin import",$prefix);
