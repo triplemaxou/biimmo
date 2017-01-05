@@ -259,9 +259,7 @@ class annonce extends bii_items {
 	}
 
 	public function villeAAfficher() {
-		$ville = utf8_encode($this->ville);
-
-		return $ville;
+		return $this->ville;
 	}
 
 	public function villeAAffichernorm() {
@@ -1075,7 +1073,7 @@ class annonce extends bii_items {
 //		echo "<br /> taxonomies ";
 		$id_post = $this->id_post;
 		$taxonomies = [
-			'property-city' => utf8_encode($this->villeAAfficherAvecCP()) . "",
+			'property-city' => $this->villeAAfficherAvecCP() . "",
 			'property-status' => [ucwords($this->taxonomyTypeBien()), ucwords($this->taxonomyActionBien())],
 			'property-feature' => $this->taxonomy_features(),
 			'property-type' => ucwords($this->type_bien()),
