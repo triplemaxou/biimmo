@@ -102,7 +102,7 @@ function bii_ajax_import_wparams($from, $to) {
 	$message = "$log";
 	update_option("bii_last_paserelle", time());
 	update_option("bii_last_paserelle_" . $from . "_" . $to, time());
-	mail("web@groupejafor.fr", $subject, $message);
+	mail("web@groupejador.fr", $subject, $message);
 }
 
 function bii_ajax_change_value() {
@@ -146,7 +146,7 @@ function bii_ajax_delete_doublons_mail() {
 	}
 	annonce::toDoDoublons("delete");
 
-	mail("web@groupejafor.fr", $subject, $message);
+	mail("web@groupejador.fr", $subject, $message);
 }
 
 function bii_ajax_reload() {
