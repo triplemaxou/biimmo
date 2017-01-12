@@ -1190,14 +1190,14 @@ class annonce extends bii_items {
 		$item->insertPost();
 		$id = $item->id;
 //		echo " Memory ".(memory_get_peak_usage() / 1024 / 1024)." MB ";
-		bii_custom_log("Bien $id id_post $item->id_post ", "Bien inséré");
+		//bii_custom_log("Bien $id id_post $item->id_post ", "Bien inséré");
 		try {
 			$item->insertPostMeta();
 		} catch (Exception $e) {
 			$messup = " Erreur : " . $item->ville . " n'existe pas";
 		}
 		echo "<br /> " . static::nom_classe_admin() . " $motecho : $item->id id du post : $item->id_post" . $messup;
-		$return = " $lettreLog($item->id id du post : $item->id_post)$messup \n\r";
+		$return = " $lettreLog($item->id id du post : $item->id_post)$messup $motecho\n\r";
 
 		$item->insertTaxonomy();
 		$alt = $item->titre();
@@ -1213,7 +1213,7 @@ class annonce extends bii_items {
 //				pre($phetag);
 
 				$nbetag = annonce_image::etagExists($etag);
-				bii_write_log($photo . " " . $nbetag);
+				//bii_write_log($photo . " " . $nbetag);
 				if ($nbetag == 1) {
 					$ai = annonce_image::fromEtag($etag);
 				} else {
@@ -1254,7 +1254,7 @@ class annonce extends bii_items {
 			}
 			unset($ai);
 			unset($ai1);
-			bii_custom_log("Bien $id nb photos $countphotos", "Photos insérées");
+			//bii_custom_log("Bien $id nb photos $countphotos", "Photos insérées");
 		}
 
 		unset($item);

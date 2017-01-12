@@ -88,9 +88,9 @@ function bii_ajax_import_test() {
 }
 
 function bii_ajax_import_wparams($from, $to) {
-	bii_custom_log("Import des données " . $from . " à " . $to);
+	bii_custom_log("Crons Import des données " . $from . " à " . $to);
 	update_option("bii_passerelle_ids", "");
-
+    
 	$logs = bii_items::fromXML("", $from, $to);
 	$nb_err = $logs["errors"];
 	$nb_add = $logs["added"];
@@ -103,6 +103,7 @@ function bii_ajax_import_wparams($from, $to) {
 	update_option("bii_last_paserelle", time());
 	update_option("bii_last_paserelle_" . $from . "_" . $to, time());
 	mail("web@groupejador.fr", $subject, $message);
+    bii_custom_log("Fin import ".date('Y-m-d H:i:s'));
 }
 
 function bii_ajax_change_value() {

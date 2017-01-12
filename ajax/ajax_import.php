@@ -16,7 +16,7 @@ $prefix = "ajax_import id:$nb";
 bii_custom_log("Import des données ".$from." à ".$to,$prefix);
 
 
-$logs = bii_items::fromXML("", $from, $to, $liste_identifiant1);
+$logs = bii_items::fromXML("", $from, $to);
 $nb_err = $logs["errors"];
 $nb_add = $logs["added"];
 $nb_edit = $logs["edit"];

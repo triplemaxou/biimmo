@@ -87,7 +87,7 @@ class bii_items extends global_class {
 //						echo "<h2>Insert $classe</h2>";
 						try {
 							$log = "id_xml $id_xml ";
-							bii_custom_log("ID xml $id_xml","Début insertion bien");
+							//bii_custom_log("ID xml $id_xml","Début insertion bien");
 							$log .= $classe::fromAnnonceXML($item);
 
 							$return .= $log;
