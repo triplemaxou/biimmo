@@ -1264,7 +1264,7 @@ class annonce extends bii_items {
 
 	public static function fromIdentifiant($id) {
 		$where = "reference = '" . $id . "'";
-		bii_custom_log("fromIdentifiant $id");
+		//bii_custom_log("fromIdentifiant $id");
 		$ids = static::all_id($where);
 		$nb = count($ids);
 		if ($nb) {

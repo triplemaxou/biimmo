@@ -551,25 +551,26 @@ if (!function_exists("debugEcho")) {
 		}
 	}
 	
-	function bii_custom_log($log, $addprefix = "") {
-		$url = bii_debug_logs_custom_path;
-		$res = fopen($url, "a+");		
-		if ($res !== false) {			
-			if (is_array($log) || is_object($log)) {
-				$log = print_r($log, true);
-			}
-			$date = date("d/m/Y H:i:s");
-			$prefix = "[Bii_cl v" . bii_debug_version . " $date $addprefix] ";
-			$suffix = "\n";
-			$log = $prefix . $log.$suffix;
-			fwrite($res, $log);
-			fclose($res);
-//			pre($log,"green");
-		}else{
-			bii_write_log($log);
-//			pre($log,"red");
-		}
-		
+	function bii_custom_log($log, $addprefix = "", $all = true) {
+        if ($all || bii_canshow_debug()) {
+            $url = bii_debug_logs_custom_path;
+            $res = fopen($url, "a+");		
+            if ($res !== false) {			
+                if (is_array($log) || is_object($log)) {
+                    $log = print_r($log, true);
+                }
+                $date = date("d/m/Y H:i:s");
+                $prefix = "[Bii_cl v" . bii_debug_version . " $date $addprefix] ";
+                $suffix = "\n";
+                $log = $prefix . $log.$suffix;
+                fwrite($res, $log);
+                fclose($res);
+    //			pre($log,"green");
+            }else{
+                bii_write_log($log);
+    //			pre($log,"red");
+            }
+        }
 	}
 
 }

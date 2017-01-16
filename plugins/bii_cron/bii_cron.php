@@ -65,7 +65,7 @@ add_action("bii_options_submit", function() {
 function bii_add_new_intervals($schedules) {
 	$schedules['every_5minutes'] = array(
 		'interval' => 300,
-		'display' => __('Youtes les 5 minutes')
+		'display' => __('Toutes les 5 minutes')
 	);
 	$schedules['4timesaday'] = array(
 		'interval' => 21600,
@@ -94,28 +94,28 @@ function bii_cron() {
 }
 
 function bii_cron_2() {
-    wp_clear_scheduled_hook('bii_4daily_event_2');return true;
+    wp_clear_scheduled_hook('bii_4daily_event_2');
 	if (!wp_next_scheduled('bii_4daily_event_2')) {
 		wp_schedule_event(time(), '4timesaday', 'bii_4daily_event_2');
 	}
 }
 
 function bii_cron_3() {
-    wp_clear_scheduled_hook('bii_4daily_event_3');return true;
+    wp_clear_scheduled_hook('bii_4daily_event_3');
 	if (!wp_next_scheduled('bii_4daily_event_3')) {
 		wp_schedule_event(time(), '4timesaday', 'bii_4daily_event_3');
 	}
 }
 
 function bii_cron_4() {
-    wp_clear_scheduled_hook('bii_4daily_event_4');return true;
+    wp_clear_scheduled_hook('bii_4daily_event_4');
 	if (!wp_next_scheduled('bii_4daily_event_4')) {
 		wp_schedule_event(time(), '4timesaday', 'bii_4daily_event_4');
 	}
 }
 
 function bii_cron_5() {
-    wp_clear_scheduled_hook('bii_4daily_event_5');return true;
+    wp_clear_scheduled_hook('bii_4daily_event_5');
 	if (!wp_next_scheduled('bii_4daily_event_5')) {
 		wp_schedule_event(time(), '4timesaday', 'bii_4daily_event_5');
 	}
@@ -149,8 +149,6 @@ function bii_autoimport() {
 
 			do_action("bii_import", 0, 200);
 			bii_custom_log("[INFO BII_CRON] Passerelle 0 200 : " . date("d/m/Y H:i:s", time()));
-            
-            do_action("bii_4daily_event_2");
 		} else {
 			bii_custom_log("[INFO BII_CRON] Pas de passerelle : " . is_it_night_or_day() . " date dernière passerelle : " . date("d/m/Y H:i:s", get_option("bii_last_paserelle")));
 		}
@@ -169,8 +167,6 @@ function bii_autoimport_2() {
 
 			do_action("bii_import", 200, 400);
 			bii_custom_log("[INFO BII_CRON] Passerelle 200 400 : " . date("d/m/Y H:i:s", time()));
-            
-            do_action("bii_4daily_event_3");
 		} else {
 			bii_custom_log("[INFO BII_CRON] Pas de passerelle : " . is_it_night_or_day() . " date dernière passerelle : " . date("d/m/Y H:i:s", get_option("bii_last_paserelle")));
 		}
@@ -188,8 +184,6 @@ function bii_autoimport_3() {
 
 			do_action("bii_import", 400, 600);
 			bii_custom_log("[INFO BII_CRON] Passerelle 400 600 : " . date("d/m/Y H:i:s", time()));
-            
-            do_action("bii_4daily_event_4");
 		} else {
 			bii_custom_log("[INFO BII_CRON] Pas de passerelle : " . is_it_night_or_day() . " date dernière passerelle : " . date("d/m/Y H:i:s", get_option("bii_last_paserelle")));
 		}
@@ -207,8 +201,6 @@ function bii_autoimport_4() {
 
 			do_action("bii_import", 600, 800);
 			bii_custom_log("[INFO BII_CRON] Passerelle 600 800 : " . date("d/m/Y H:i:s", time()));
-            
-            do_action("bii_4daily_event_5");
 		} else {
 			bii_custom_log("[INFO BII_CRON] Pas de passerelle : " . is_it_night_or_day() . " date dernière passerelle : " . date("d/m/Y H:i:s", get_option("bii_last_paserelle")));
 		}
