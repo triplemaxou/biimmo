@@ -88,6 +88,7 @@ add_action("bii_options", function() {
 			<button class="btn btn-warning reload">Il y a <?= $count; ?> bien<?= $s; ?> sans photos</button>
 		<?php } ?>
 			<button class="btn btn-info count-doublons">Voir le nombre de doublons <i class="fa fa-spinner hidden"></i></button>
+            <button class="btn btn-primary purge-archive">Purger les annonces archivées <i class="fa fa-spinner hidden"></i></button>
 		<p>
 			<span class="expl-import hidden">
 				Veuillez patienter, cette opération peut prendre 10 minutes.

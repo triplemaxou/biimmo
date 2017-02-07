@@ -23,8 +23,8 @@ $nb_edit = $logs["edit"];
 $nb_arch = $logs["archive"];
 $log = $logs["log"];
 
-$subject = utf8_decode(get_bloginfo("name") . " import des données e:$nb_err a:$nb_add m:$nb_edit a:$nb_arch");
-$message = "$log";
+$subject = utf8_decode(get_bloginfo("name") . " import des données $from à $to : e:$nb_err a:$nb_add m:$nb_edit a:$nb_arch");
+$message = utf8_decode("$log");
 update_option("bii_last_paserelle",time());
 update_option("bii_last_paserelle_".$from."_".$to,time());
 //mail("m.duvalet@hubb.fr", $subject, $message);

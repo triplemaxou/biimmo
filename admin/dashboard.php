@@ -33,7 +33,7 @@ bii_custom_log("Accès dashboard");
 
 						<?php
 						}
-						$annonce = new annonce(6733);
+						/*$annonce = new annonce(6733);
 						echo $annonce->metaTitle();
 						echo "<br />";
 						echo $annonce->metaDescription();
@@ -45,7 +45,7 @@ bii_custom_log("Accès dashboard");
 						echo "<br />";
 						echo $annonce2->metaDescription();
 						echo "<br />";
-						echo $annonce2->altfirst();
+						echo $annonce2->altfirst();*/
 					?>
 
 					<div class="clear"></div>

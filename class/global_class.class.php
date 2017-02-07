@@ -629,7 +629,8 @@ class global_class {
 				$input .= "<input type='checkbox'  id='$champ-cbx' name='$champ-cbx' class='cbx-data-change form-control' data-change='$champ' $checked />";
 			} else {
 				$type = "type='text'";
-				$value = utf8_encode($value);
+				//$value = utf8_encode($value);
+                $value = $value;
 				if (strpos($champ, "nb_") !== false) {
 					$type = "type='number'";
 				}
@@ -1252,9 +1253,9 @@ class global_class {
 		foreach ($value as $key => $val) {
 
 //			$val = addslashes($val);
-			$val = utf8_decode($val);
+			//$val = utf8_decode($val);
 			$val = str_replace("\\", "", $val);
-
+            
 
 
 			if ($key === 'id_' . $this->class_name)

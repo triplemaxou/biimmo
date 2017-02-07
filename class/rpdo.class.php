@@ -20,6 +20,26 @@ class wpdbExtended extends wpdb {
 		return $connexion;
 	}
 
+    public function bii_select($table, $where = array(), $select = array(), $output = OBJECT) {
+        
+        $query = 'SELECT ';
+        if (count($select) > 0) {
+            $query .= implode(' , ', $select);
+        } else {
+            $query .= '*';
+        }
+        
+        $query .= " FROM $table WHERE 1 ";
+        
+        if (count($where) > 0) {
+            foreach ($where as $field => $val) {
+                $query .= " AND $field='$val' ";
+            }
+        }
+        
+        $result = $this->get_results($query, $output);
+        return $result;
+    }
 }
 
 class rpdo {

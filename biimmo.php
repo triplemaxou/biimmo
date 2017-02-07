@@ -3,7 +3,7 @@
 /*
   Plugin Name: Biimmo
   Description: Gestion du carnet de biens d'une agence immobilière.
-  Version: 1.7
+  Version: 1.8
   Author: Biilink Agency
   Author URI: http://biilink.com/
   License: GPL2
@@ -98,8 +98,8 @@ function bii_ajax_import_wparams($from, $to) {
 	$nb_arch = $logs["archive"];
 	$log = $logs["log"];
 
-	$subject = utf8_decode(get_bloginfo("name") . " import des données e:$nb_err a:$nb_add m:$nb_edit a:$nb_arch");
-	$message = "$log";
+	$subject = utf8_decode(get_bloginfo("name") . " import des données $from à $to : e:$nb_err a:$nb_add m:$nb_edit a:$nb_arch");
+	$message = utf8_decode("$log");
 	update_option("bii_last_paserelle", time());
 	update_option("bii_last_paserelle_" . $from . "_" . $to, time());
 	mail("web@groupejador.fr", $subject, $message);
@@ -131,6 +131,10 @@ function bii_ajax_delete_doublons() {
 	die();
 }
 
+function bii_purge_archive() {
+    annonce::purgeArchive();
+}
+
 function bii_ajax_delete_doublons_mail() {
 	$count = annonce::toDoDoublons("count");
 	$liste = annonce::toDoDoublons("return");
@@ -153,6 +157,46 @@ function bii_ajax_delete_doublons_mail() {
 function bii_ajax_reload() {
 	include("ajax/ajax_reload_pictures.php");
 	die();
+}
+
+function bii_ajax_reload_pictures() {
+    bii_custom_log("[INFO BII_CRON] Reload pictures start");
+    $subject = utf8_decode(get_bloginfo("name") . " Reload pictures");
+	$message = "";
+    $liste_reload = annonce::liste_reload();
+    
+    foreach ($liste_reload as $item) {
+        $id = $item->id();
+        
+        $photos =annonce_image::all_id("id_annonce = $id");
+        $message .= "Annonce : $id : ".count($photos)." photos \n\r";
+        $attid1 = 1183;
+        $idpost = $item->id_post();
+        foreach ($photos as $id_photo) {
+            $ai = new annonce_image($id_photo);
+            $attid = $ai->addAttachement($idpost);
+            postmeta::add($idpost, "REAL_HOMES_property_images", $attid);
+
+            $photo_url = $ai->photo();
+    
+            if (strpos($photo_url, "-1") !== false && strpos($photo_url, "-10") === false) {
+    
+                $ai1 = $ai;
+                $attid1 = $ai1->attach_id();
+            }
+
+        }
+        delete_post_thumbnail($idpost);
+        set_post_thumbnail($idpost, $attid1);
+        if ($item->nouveaute()) {
+            postmeta::add($idpost, "REAL_HOMES_slider_image", $attid1);
+        }
+        if ($item->coupdecoeur()) {
+            postmeta::add($idpost, "REAL_HOMES_attachments", $attid1);
+        }
+    }
+    mail("web@groupejador.fr", $subject, $message);
+    bii_custom_log("[INFO BII_CRON] Reload pictures end");
 }
 
 add_action('wp_ajax_bii_dezip', 'bii_ajax_dezip');
@@ -183,8 +227,12 @@ add_action('wp_ajax_nopriv_bii_delete', 'bii_ajax_delete');
 add_action('wp_ajax_bii_ajax_purge_pictures', 'bii_ajax_purge_pictures');
 add_action('wp_ajax_nopriv_bii_ajax_purge_pictures', 'bii_ajax_purge_pictures');
 
+add_action('wp_ajax_bii_purge_archive', 'bii_purge_archive');
+add_action('bii_purge_archive', 'bii_purge_archive');
+
 add_action('wp_ajax_bii_ajax_reload', 'bii_ajax_reload');
 add_action('wp_ajax_nopriv_bii_ajax_reload', 'bii_ajax_reload');
+add_action('bii_reload_pictures', 'bii_ajax_reload_pictures', 10, 2);
 
 register_deactivation_hook(__FILE__, 'bii_cron');
 register_activation_hook(__FILE__, 'bii_cron');

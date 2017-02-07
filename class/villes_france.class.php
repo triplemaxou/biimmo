@@ -166,6 +166,14 @@ class villes_france extends bddcommune_items {
 	}
 
 	public static function fromNom($nom) {
+        
+        $correspondance = array(
+            'Saint Jean Folleville' => 'Saint Jean de Folleville'
+        );
+        
+        if ( isset($correspondance[$nom])) {
+            $nom = $correspondance[$nom];
+        }
 		$nom = trim($nom);
 		$nom_maj = stripAccentsToMaj($nom);
 		$nom_min = stripAccents(strtolower($nom));
@@ -179,7 +187,9 @@ class villes_france extends bddcommune_items {
 //		echo $where;
 		$liste = static::all_id($where);
 		if(count($liste) == 0){
-			throw new Exception;
+            bii_custom_log("Aucune ville pour ".$nom_min);
+            return false;
+			//throw new Exception("Aucune ville pour ".$nom_min." : ".$where);
 		}
 		foreach ($liste as $id) {
 			$item = new static($id);

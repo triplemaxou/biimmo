@@ -58,6 +58,7 @@ class annonce extends bii_items {
 	protected $bilan_ges; // bilan_ges; //
 	protected $valeur_ges; //0.00 valeur_ges; //
 	protected $date_maj;
+    protected $secteurweb;
 
 	public function visiteVirtuelle() {
 		
@@ -192,13 +193,17 @@ class annonce extends bii_items {
 		if (!$this->code_insee) {
 			$ville = $this->villeAAfficher();
 			$item = villes_france::fromNom($ville);
-			try {
-				$insee = $item->codeInsee();
-				$this->updateChamps($insee, "code_insee");
-				return $insee;
-			} catch (Exception $e) {
-				throw new Exception("Erreur Nom de commune : $ville n'existe pas");
-			}
+            if ($item !== false) {
+                try {
+                    $insee = $item->codeInsee();
+                    $this->updateChamps($insee, "code_insee");
+                    return $insee;
+                } catch (Exception $e) {
+                    throw new Exception("Erreur Nom de commune : $ville n'existe pas");
+                }
+            } else {
+                return '';
+            }
 		} else {
 			return $this->code_insee;
 		}
@@ -295,11 +300,13 @@ class annonce extends bii_items {
 	}
 
 	public function chauffage() {
-		return utf8_encode($this->naturechauffage);
+        return $this->naturechauffage;
+		//return utf8_encode($this->naturechauffage);
 	}
 
 	public function typechauffage() {
-		return utf8_encode($this->typechauffage);
+        return $this->typechauffage;
+		//return utf8_encode($this->typechauffage);
 	}
 
 	public function etage() {
@@ -462,8 +469,8 @@ class annonce extends bii_items {
 	}
 
 	function encodetexte() {
-
-		return utf8_encode($this->texte());
+        return $this->texte();
+		//return utf8_encode($this->texte());
 	}
 
 	static function getListeProprietes() {
@@ -609,7 +616,8 @@ class annonce extends bii_items {
 	}
 
 	public function insertPost() {
-		if (!$this->id_post) {
+        //bii_custom_log($this->id_post, "Insert Post");
+		if (!$this->id_post || $this->id_post == '0') {
 			$values = $this->arrayPost();
 			$id_post = wp_insert_post($values);
 			$this->updateChamps($id_post, "id_post");
@@ -957,7 +965,7 @@ class annonce extends bii_items {
 		$where = "post_id = '" . $id_post . "'";
 		postmeta::deleteWhere($where);
 		foreach ($map as $key => $value) {
-			postmeta::add($id_post, $key, $value);
+			postmeta::add($id_post, $key, utf8_decode($value));
 		}
 //		}
 	}
@@ -1125,7 +1133,7 @@ class annonce extends bii_items {
 	}
 
 	public static function fromAnnonceXML($annonceXML) {
-		$return = " erreur";
+		$motecho = " erreur";
 		$vars = get_object_vars($annonceXML);
 //		$id_xml = $annonceXML["@attributes"]["id"];
 		unset($annonceXML);
@@ -1190,7 +1198,7 @@ class annonce extends bii_items {
 		$item->insertPost();
 		$id = $item->id;
 //		echo " Memory ".(memory_get_peak_usage() / 1024 / 1024)." MB ";
-		//bii_custom_log("Bien $id id_post $item->id_post ", "Bien inséré");
+		bii_custom_log("Bien $id id_post $item->id_post ", "Bien inséré");
 		try {
 			$item->insertPostMeta();
 		} catch (Exception $e) {
@@ -1385,17 +1393,39 @@ class annonce extends bii_items {
 			$this->updateChamps(time(), "date_maj");
 		}
 	}
+    
+    public static function purgeArchive() {
+        global $wpdb;
+        
+        $nom_table = static::prefix_bdd() . static::nom_classe_bdd();
+        $db = new wpdbExtended($wpdb);
+        
+        $listeArchive = $db->bii_select($nom_table, array('is_archive' => 1), array('id'), ARRAY_A);
+        
+        $i = 0;
+        foreach($listeArchive as $annId) {
+
+            $annonce = new annonce($annId['id']);
+            
+            $annonce->purgeImages();
+            $i++;
+
+        }        
+    }
 
 	public function purgeImages() {
 		$where = "id_annonce = '" . $this->id . "'";
 		$liste_id = annonce_image::all_id($where);
-		pre($liste_id);
-		foreach ($liste_id as $id_image) {
-			$image = new annonce_image($id_image);
-			$image->purge();
-		}
-		annonce_image::deleteFromAnnonce($this->id);
-		$this->insertPostMeta();
+		
+        if (count($liste_id) > 0) {
+            bii_custom_log("purge image annonce ".$this->id . " :: ".count($liste_id));
+            foreach ($liste_id as $id_image) {
+                $image = new annonce_image($id_image);
+                $image->purge();
+            }
+            annonce_image::deleteFromAnnonce($this->id);
+            $this->insertPostMeta();
+        }
 	}
 
 	public function categorieOffre_ligneIA() {

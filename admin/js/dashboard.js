@@ -249,4 +249,23 @@ jQuery(function ($) {
 			}
 		});
 	});
+    $("body").on("click", ".purge-archive", function (e) {
+        e.preventDefault();
+        var $this = $(this);
+        $this.find(".fa-spinner").removeClass("hidden").addClass("fa-pulse");
+        $.ajax({
+			url: ajaxurl,
+			data: {
+				'action': 'bii_purge_archive'
+			},
+			dataType: 'html',
+			success: function (reponse) {
+                console.log(reponse);
+				$this.html('Images supprimmés');
+			},
+			error: function () {
+				$this.html('Erreur');
+			}
+		});
+    });
 });

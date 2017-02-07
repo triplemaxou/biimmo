@@ -81,19 +81,19 @@ class bii_items extends global_class {
 //				echo " index $i Memory ".(memory_get_peak_usage() / 1024 / 1024)." MB";
 				$liste_identifiant[] = $item->reference;
 				$id_xml = get_object_vars($item)["@attributes"]["id"];
-//				if($item->reference == "302721"){
+				//if($item->reference == "310782"){
 				if ($i >= $start && $i < $stop) {
 					foreach ($arrayClasses as $classe) {
 //						echo "<h2>Insert $classe</h2>";
 						try {
 							$log = "id_xml $id_xml ";
-							//bii_custom_log("ID xml $id_xml","Début insertion bien");
+							bii_custom_log("ID xml $id_xml","Début insertion bien ".$i);
 							$log .= $classe::fromAnnonceXML($item);
 
 							$return .= $log;
 							if (stripos($log, "erreur")) {
 								++$nb_errors;
-							} elseif (stripos($log, "ajoutée")) {
+							} elseif (stripos($log, "ajouté")) {
 								++$nb_new;
 							} elseif (stripos($log, "existante")) {
 								++$nb_edit;
@@ -107,6 +107,7 @@ class bii_items extends global_class {
 				}
 				unset($item);
 				++$i;
+                //}
 			}
 			
 //			
