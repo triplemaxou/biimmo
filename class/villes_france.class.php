@@ -198,7 +198,7 @@ class villes_france extends bddcommune_items {
 	}
 
 	public function getNomForListe($is_likeComparator = false) {
-		$nom = utf8_encode($this->nom());
+		$nom = $this->nom();
 
 		$nom_nopct = strtoupper($nom);
 		$nom_nopct = str_replace("-", " ", $nom_nopct);

@@ -965,7 +965,7 @@ class annonce extends bii_items {
 		$where = "post_id = '" . $id_post . "'";
 		postmeta::deleteWhere($where);
 		foreach ($map as $key => $value) {
-			postmeta::add($id_post, $key, utf8_decode($value));
+			postmeta::add($id_post, $key, $value);
 		}
 //		}
 	}
@@ -1148,7 +1148,7 @@ class annonce extends bii_items {
 				if ($identifiant == $key) {
 					$id = $val;
 				}
-				echo " Memory " . (memory_get_peak_usage() / 1024 / 1024) . " MB ";
+				//echo " Memory " . (memory_get_peak_usage() / 1024 / 1024) . " MB ";
 				$values[$key] = $val;
 			}
 			if ("images" == $key) {
@@ -1619,7 +1619,7 @@ class annonce extends bii_items {
 	}
 
 	public static function mailFromListe($liste, $limit = 0) {
-		pre($liste, "green");
+		//pre($liste, "green");
 		ob_start();
 		static::headermail();
 		$i = 1;

@@ -23,7 +23,7 @@ class users extends global_class {
 
 	public function get_rsItems() {
 		$liste = usermeta::multiple_from_id_key($this->id(), "requete_sauvegardee");
-		pre($liste,'red');
+		//pre($liste,'red');
 		$listeRS = [];
 		if ((bool) $liste) {
 			foreach ($liste as $id) {
@@ -31,7 +31,7 @@ class users extends global_class {
 				$listeRS[] = $item;
 			}
 		}
-//		pre($listeRS,"#A4B0CA");
+		//pre($listeRS,"#A4B0CA");
 		return $listeRS;
 	}
 
@@ -55,6 +55,10 @@ class users extends global_class {
 		return $alerts;
 	}
 
+    /**
+     * ressort une liste de en fonctions des form de recherche enregistré
+     * @return array
+     */
 	public function getBiensSearched() {
 		$liste_biens = [];
 		$rs_list = $this->get_rsItems();
@@ -64,19 +68,29 @@ class users extends global_class {
 		
 		return $liste_biens;
 	}
-
+    
+    /**
+     * envoi un mail à tous les utilisateurs de la base.
+     */
 	public static function sendmailToAll() {
 		$users = static::all_id();
+        pre(count($users) . ' users', "blue");
 		foreach ($users as $user_id) {
-			$user = new static($user_id);
-			$user->sendmail();
+            if ($user_id == 1) {
+                var_dump($user_id);
+                $user = new static($user_id);
+                $user->sendmail();
+            }
 		}
 //		registred_dates::insertorupdate("date_envoi_mail");
 	}
 
+    /**
+     * Envoi un mail si des bien correspondent à leurs recherhces enregistré
+     */
 	public function sendmail() {
 		$liste = $this->getBiensSearched();
-		
+		//pre($liste, 'yellow');
 		if (count($liste)) {
 			$to_email = $this->user_email;
 			$from_email = "contact@lemaistre-immo.com";

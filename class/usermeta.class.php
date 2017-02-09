@@ -64,9 +64,9 @@ class usermeta extends global_class {
 
 	public function liste_biens() {
 		$where = $this->display_request();
-//		pre($where,"green");
+		pre($where,"green");
 		$list = annonce::all_id($where);
-//		pre($list,"red");
+		pre($list,"yellow");
 		return $list;
 	}
 
@@ -76,6 +76,7 @@ class usermeta extends global_class {
 
 		if ($this->meta_key == "requete_sauvegardee") {
 			$item = unserialize($this->meta_value);
+            pre($item);
 			if ($item["sendmail"] == 1) {
 				$req = $this->requestBuilder($item);
 			}
@@ -152,6 +153,11 @@ class usermeta extends global_class {
 
 	private function keywordville(&$value, &$comparateur, &$aft, &$bef, $distance = 0) {
 		$comparateur = "=";
+        
+        if (preg_match('#(.*)\([0-9]{5}\)$#', $value, $out)) {
+            $value = trim($out[1]);
+        }
+        
 		$ville = villes_france::fromNom($value);
 		if ($distance == 0) {
 			$value = $ville->codeInsee();

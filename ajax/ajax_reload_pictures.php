@@ -3,6 +3,7 @@
 require_once(plugin_dir_path(__FILE__) . "../config.php");
 
 $liste_reload = annonce::liste_reload();
+//bii_custom_log("Reload pictures for ".var_export($liste_reload, true));
 pre($liste_reload,"green");
 foreach ($liste_reload as $item) {
 	$id = $item->id();

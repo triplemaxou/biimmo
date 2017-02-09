@@ -560,7 +560,7 @@ class global_class {
 						if ($value == $id_fk) {
 							$input .= " selected='selected' ";
 						}
-						$input.= ">" . utf8_encode($item->option_value()) . "</option> ";
+						$input.= ">" . $item->option_value() . "</option> ";
 					}
 					$input .= "</select>";
 				}
@@ -615,7 +615,7 @@ class global_class {
 					. "</script>";
 			} elseif (!is_array($value) && (strip_tags($value) != $value))/* Si $value est du texte HTML */ {
 				echo $label . $input;
-				wp_editor(utf8_encode($value), $champ);
+				wp_editor($value, $champ);
 				$options["echo"] = 0;
 //			$input .= "<textarea id='$champ' name='$champ' class='wp-editor-area $class' >".utf8_encode($value)."</textarea>  ";
 				echo "</div></div>";
@@ -978,8 +978,8 @@ class global_class {
 				}
 
 				if (!is_array($value)) {
-					$troncature = utf8_encode(strip_tags(static::tronquer($value, $index_troncature)));
-					$title = utf8_encode(strip_tags($value, $index_troncature));
+					$troncature = strip_tags(static::tronquer($value, $index_troncature));
+					$title = strip_tags($value, $index_troncature);
 				} else {
 					$troncature = $value;
 					$title = $value;
@@ -1321,7 +1321,7 @@ class global_class {
 
 			$req = $pdo->prepare($query_update);
 
-//			bii_write_log("update_champs ".$query_update);
+			//bii_custom_log("update_champs ".var_export($array_prepare, true));
 
 			$retour = $req->execute($array_prepare);
 			$pdo = null;
