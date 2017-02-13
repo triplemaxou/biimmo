@@ -1469,19 +1469,23 @@ class global_class {
 	 * </p>	 
 	 * @return array un tableau d'identifiants
 	 */
-	static function all_id($where = "", $groupBy = "") {
+	static function all_id($where = "", $groupBy = "", $orderBy = "") {
 		$pdo = static::getPDO();
 		$identifiant = static::identifiant();
 		$req = static::baseRequest();
 		if ($where != "") {
-			$req .= " where " . $where;
+			$req .= " WHERE " . $where;
 		}
 		if ($groupBy != "") {
 			$req .= " GROUP BY " . $groupBy;
 		}
-//pre($req);
-//		bii_write_log("all_id ".$req);
+        if ($orderBy != "") {
+            $req .= " ORDER BY ".$identifiant." ".$orderBy;
+        }
+        
+		//bii_custom_log("all_id ".$req);
 		$select = $pdo->query($req);
+        //bii_custom_log(var_export($select, true));
 		$liste = array();
 		while ($row = $select->fetch()) {
 			$liste[] = $row[$identifiant];
@@ -1561,6 +1565,21 @@ class global_class {
 		}
 		return $nb;
 	}
+    
+    /**
+     * get next auto increment
+     */
+    static function getNextId() {
+        $pdo = static::getPDO();
+        
+        $class_name = static::prefix_bdd() . static::nom_classe_bdd();
+        $req = "SHOW TABLE STATUS LIKE '".$class_name."'";
+        $select = $pdo->query($req);
+        while ($row = $select->fetch()) {
+			$AI = $row["Auto_increment"];
+		}
+		return $AI;
+    }
 
 	//</editor-fold>
 	//<editor-fold desc="Gestion des objets">

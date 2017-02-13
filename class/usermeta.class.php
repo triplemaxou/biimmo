@@ -18,9 +18,8 @@ class usermeta extends global_class {
 	public static function add($user_id, $key, $value, $replace = true) {
 
 		$id = 0;
-		if (!static::exists($user_id, $value)) {
+		if (!static::exists($user_id, $key)) {
 			$id = static::insertDefault($user_id, $key, $value);
-			echo "new $id ";
 			return $id;
 		} else {
 			$id = static::from_id_key($user_id, $key);
@@ -29,9 +28,11 @@ class usermeta extends global_class {
 
 				$item = new static($id);
 				$item->updateChamps($value);
-				return $id;
-			}
-			return $value;
+				
+			} else {
+                $id = static::insertDefault($user_id, $key, $value);
+            }
+			return $id;
 		}
 	}
 
@@ -46,9 +47,9 @@ class usermeta extends global_class {
 		return $id;
 	}
 
-	public static function exists($user_id, $value) {
+	public static function exists($user_id, $key) {
 
-		$bool = (bool) static::nb("user_id = '$user_id' AND meta_value = '$value'");
+		$bool = (bool) static::nb("user_id = '$user_id' AND meta_key = '$key'");
 		return $bool;
 	}
 
@@ -57,16 +58,15 @@ class usermeta extends global_class {
 		return $liste[0];
 	}
 
-	public static function multiple_from_id_key($user_id, $key) {
-		$liste = static::all_id("user_id = '$user_id' AND meta_key = '$key'");
+	public static function multiple_from_id_key($user_id, $key, $order = "ASC") {
+		$liste = static::all_id("user_id = '$user_id' AND meta_key = '$key'", '', $order);
 		return $liste;
 	}
 
 	public function liste_biens() {
 		$where = $this->display_request();
-		pre($where,"green");
 		$list = annonce::all_id($where);
-		pre($list,"yellow");
+		
 		return $list;
 	}
 
@@ -76,7 +76,7 @@ class usermeta extends global_class {
 
 		if ($this->meta_key == "requete_sauvegardee") {
 			$item = unserialize($this->meta_value);
-            pre($item);
+            //pre($item);
 			if ($item["sendmail"] == 1) {
 				$req = $this->requestBuilder($item);
 			}

@@ -32,6 +32,7 @@ bii_custom_log("Accès dashboard");
 						</div>
 
 						<?php
+                        //users::sendmailToAll();
 						}
 						/*$annonce = new annonce(6733);
 						echo $annonce->metaTitle();

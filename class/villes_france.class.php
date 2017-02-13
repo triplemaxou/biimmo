@@ -110,6 +110,7 @@ class villes_france extends bddcommune_items {
 			$formule = "(6366*acos(cos(radians(" . $this->lat() . "))*cos(radians($nom_bdd.$latslug))*cos(radians($nom_bdd.$longslug) -radians(" . $this->long() . "))+sin(radians(" . $this->lat() . "))*sin(radians($nom_bdd.$latslug))))";
 			$req = $formule . " <= $nbkm";
 //			debugEcho($req);
+            //bii_custom_log($req);
 			return static::all_id($req);
 		} else {
 			return [$this->id()];
@@ -168,10 +169,10 @@ class villes_france extends bddcommune_items {
 	public static function fromNom($nom) {
         
         $correspondance = array(
-            'Saint Jean Folleville' => 'Saint Jean de Folleville'
+            'saint jean folleville' => 'Saint Jean de Folleville',
         );
         
-        if ( isset($correspondance[$nom])) {
+        if ( isset($correspondance[strtolower($nom)])) {
             $nom = $correspondance[$nom];
         }
 		$nom = trim($nom);
@@ -185,7 +186,9 @@ class villes_france extends bddcommune_items {
 
 		$where = "ville_departement IN (76,27,14) AND (ville_nom LIKE \"%$nom_maj%\" or ville_nom_simple LIKE \"%$nom_min%\" or ville_code_postal LIKE \"%$nom%\" )";
 //		echo $where;
+        
 		$liste = static::all_id($where);
+        
 		if(count($liste) == 0){
             bii_custom_log("Aucune ville pour ".$nom_min);
             return false;

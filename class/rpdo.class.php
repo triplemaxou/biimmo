@@ -84,7 +84,7 @@ class rpdo {
 
 		$db = new PDO('mysql:host=' . $rpdo_host . ';dbname=' . $rpdo_name, $rpdo_user, $rpdo_pwd);
 		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
-		
+		$db->exec("SET NAMES 'utf8';");
 		return $db;
 	}
 }

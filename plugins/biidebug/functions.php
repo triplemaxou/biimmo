@@ -544,7 +544,7 @@ if (!function_exists("debugEcho")) {
 		$heure += $decalagehoraire;
 		$heure = $heure % 24;
 //	echo $heure;
-		if ($heure < 6 || $heure > 22) {
+		if ($heure < 8 || $heure > 20) {
 			return "night";
 		} else {
 			return "day";

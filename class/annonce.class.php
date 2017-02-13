@@ -189,8 +189,8 @@ class annonce extends bii_items {
 		return false;
 	}
 
-	public function codeInsee() {
-		if (!$this->code_insee) {
+	public function codeInsee($refresh = false) {
+		if ($refresh || !$this->code_insee) {
 			$ville = $this->villeAAfficher();
 			$item = villes_france::fromNom($ville);
             if ($item !== false) {
@@ -1195,6 +1195,7 @@ class annonce extends bii_items {
 			}
 		}
 		$item->updateChamps($values);
+        $item->codeInsee(true);
 		$item->insertPost();
 		$id = $item->id;
 //		echo " Memory ".(memory_get_peak_usage() / 1024 / 1024)." MB ";
@@ -1401,16 +1402,18 @@ class annonce extends bii_items {
         $db = new wpdbExtended($wpdb);
         
         $listeArchive = $db->bii_select($nom_table, array('is_archive' => 1), array('id'), ARRAY_A);
-        
+        $return = array();
         $i = 0;
         foreach($listeArchive as $annId) {
 
             $annonce = new annonce($annId['id']);
             
             $annonce->purgeImages();
+            $return[] = $annId['id'];
             $i++;
 
         }        
+        return $return;
     }
 
 	public function purgeImages() {
@@ -1618,19 +1621,16 @@ class annonce extends bii_items {
 		return $lien;
 	}
 
-	public static function mailFromListe($liste, $limit = 0) {
-		//pre($liste, "green");
+	public static function mailFromListe($liste,$uid) {
 		ob_start();
 		static::headermail();
-		$i = 1;
 		foreach ($liste as $id) {
-			if ($limit != 0 && $i <= $limit) {
-				$annonce = new annonce($id);
-				$annonce->displayAnnonceMail($i);
-			}
-			++$i;
+            $annonce = new annonce($id);
+            $annonce->displayAnnonceMail();
 		}
-		static::footermail();
+        
+        $unregisterLink = "<a href='".get_site_url()."/desinscription-newsletter/?unregister_newsletter=". $uid ."' >Pour vous désinscrire de cette newsletter, cliquez ici.</a>";
+		static::footermail($unregisterLink);
 		$email_body = ob_get_contents();
 		ob_end_clean();
 		return $email_body;
@@ -1640,19 +1640,44 @@ class annonce extends bii_items {
 		?>
 		<!doctype html>
 		<html xmlns="http://www.w3.org/1999/xhtml">
-			<head></head>
+            <head>
+                <style>
+                    * {margin:0;padding:0;font-family:Helvetica, Arial, sans-serif;}
+                    table {border-collapse:collapse;}
+                    td {border: 1px solid #dedede;vertical-align:middle;padding:5px;font-size:12px;line-height:12px;height:12px;}
+                    a {text-decoration:none; color:#337ab7;}
+                    div a img{height: 150px;width:auto;}
+                    img.attachment-post-thumbnail{height: 150px;width:auto;}
+                </style>
+            </head>
 			<body>
-				<div class="liste_annonce" style="max-width:600px;width:100%;">
-					<table><tbody>
-							<tr>
-								<?php
-							}
+                <div class='header'>
+                    <img src="http://lemaistre-immo.fr/wp-content/uploads/2017/02/header_mail.png" style="display:block !important;width:100% !important;" />
+                </div>
+				<div class="liste_annonce">
+					
+        <?php
+    }
 
-							public static function footermail() {
-								?>
-							</tr>
-						</tbody></table>
+    public static function footermail($footLink = '') {
+        ?>
+							
 				</div>
+                <div class="footer" style="background-color:#dee1e2;padding-top:15px;">
+                    <h3 style="text-align:center;color:#4a5868;font-size:20px;font-weight:300;">LEMAISTRE IMMOBILIER – 5 Agences immobilières en Haute-Normandie</h3>
+                    <p style="text-align:center;color:#4a5868;font-size:13px;font-weight:300;">
+                        Retrouvez votre agence :<br />
+                        AGENCE LE HAVRE : 91 avenue Foch | <a href="tel:02 35 22 44 44">02 35 22 44 44</a><br />
+                        CRIQUETOT L’ESNEVAL : 8 rue du 8 mai 1945 | <a href="tel:02 35 10 00 00">02 35 10 00 00</a><br />
+                        ST ROMAIN DE COLBOSC : 26 place Th. Benoist | <a href="tel:02 35 20 77 77">02 35 20 77 77</a><br />
+                        GODERVILLE : 27 place Godard des Vaux | <a href="tel:02 35 10 20 00">02 35 10 20 00</a><br />
+                        MONTIVILLIERS : 14, rue Gambetta | <a href="tel:02 35 30 10 00">02 35 30 10 00</a><br />
+                        <a href='mailto:contact@lemaistre-immo.com'>contact@lemaistre-immo.com</a><br />
+                        
+                    </p>
+                    <img src="http://lemaistre-immo.fr/wp-content/uploads/2017/02/footer_mail.png" style="display:block !important;width:100% !important;" />
+                </div>
+                <?= $footLink ?>
 			</body>
 		</html>
 		<?php
@@ -1674,12 +1699,12 @@ class annonce extends bii_items {
 		<?php
 	}
 
-	public function displayAnnonceMail($i) {
+	public function displayAnnonceMail() {
 		$classArt = "";
 		$fatitle = "";
 		if ($this->coupdecoeur()) {
 			$classArt .= "coupdecoeur";
-			$fatitle = '<i class="fa fa-heart"></i>';
+			$fatitle = '<img src="http://lemaistre-immo.fr/wp-content/uploads/2017/02/coeur_icon.png" class="coupdecoeur" height="18"/>&nbsp;';
 		}
 		if ($this->nouveaute()) {
 			$classArt .= "nouveau";
@@ -1687,49 +1712,45 @@ class annonce extends bii_items {
 		$lien = $this->lien();
 		$titre = $this->titre();
 		$srcthumb = get_the_post_thumbnail($this->id_post);
-//		pre($srcthumb,"red");
 		$type_bien = $this->type_bien();
 //		$type_trans = $this->type_transaction();
 //		$text_caption = ucfirst("$type_bien en $type_trans");
 		$prix = $this->prix();
-		$liendesc = utf8_decode("<a href='$lien' class='more-details'>+ de détails</a>");
-		$description = utf8_encode(static::tronquer($this->description_internet(), 100, $liendesc));
+        $liendesc = "...&nbsp;&nbsp;<a href='$lien' class='more-details'>+ de détails</a>";
+        $description = static::tronquer($this->description_internet(), 150, $liendesc);
 		$surface = $this->surface_string();
 		$chambres = $this->nb_string("nb_chambre", "chambre");
 		$pieces = $this->nb_string("nb_piece", "pièce");
-		if ($i % 2 == 1 && $i != 1) {
-			?></tr><tr><?php
-		}
+		
 		?>
-			<td>
-				<div style="width:200px;display:inline-block;">
-					<article class="property-item" style="background-color: #ffffff;border: 1px solid #dedede;
-							 margin-bottom: 5px !important;margin-top: 5px !important;padding: 15px 19px 0;
-							 background-color: #fff;text-align: left;">
-						<h4 style="height:38px;"><?= $fatitle; ?><a href="<?= $lien; ?>"><?= $titre; ?></a></h4>
+			
+				<div>
+					<div class="property-item" style="margin:auto;margin-bottom: 5px;margin-top: 5px;padding: 15px 19px 0;width:100%;max-width: 500px;">
+						<h4 style="font-size: 18px;height:38px;text-align:center;">
+                            <?= $fatitle; ?><a href="<?= $lien; ?>"><?= $titre; ?></a>
+                        </h4>
 
-						<figure>
+						<div style="text-align:center;">
 							<a href="<?= $lien; ?>"><?= $srcthumb; ?></a>
+						</div>
 
-						</figure>
-
-						<div class="detail" style="height:130px;">
-							<h5 class="price" ><span style="color:#cd1719;">
-									<?= $prix; ?> €</span><small> - <?= $type_bien; ?></small>            </h5>
-									<?= $description; ?>
+						<div class="detail" style="border-bottom:20px;">
+							<h5 class="price" ><span style="color:#cd1719;font-size:15px;">
+									<?= $prix; ?> €</span><small style="font-size:12px;"> - <?= $type_bien; ?></small>            </h5>
+                            <p style="font-size:12px;"><?= $description; ?></p>
 
 						</div>
 
-						<table class="property-meta" style="width:200px;display:table;margin-bottom:10px;border: 1px solid #dedede;">
+						<table class="property-meta" style="margin-bottom:10px;border: 1px solid #dedede;">
 							<tr>
-								<td style="display:table-cell;border: 1px solid #dedede;"><?= $surface; ?></td>
-								<td style="display:table-cell;border: 1px solid #dedede;"><?= $chambres; ?></td>
-								<td style="display:table-cell;border: 1px solid #dedede;"><i class="icon-sofa"></i><?= $pieces; ?></td>
+                                <?php if($surface != 0){ ?><td><?= $surface; ?></td><?php } ?>
+								<?php if($chambres != 0){ ?><td><?= $chambres; ?></td><?php } ?>
+								<?php if($pieces != 0){ ?><td><?= $pieces; ?></td><?php } ?>
 							</tr>
 						</table>
-					</article>
+					</div>
 				</div>
-			</td>
+			
 			<?php
 		}
 

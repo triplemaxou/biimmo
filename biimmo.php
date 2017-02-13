@@ -132,7 +132,14 @@ function bii_ajax_delete_doublons() {
 }
 
 function bii_purge_archive() {
-    annonce::purgeArchive();
+    bii_custom_log("[INFO BII_CRON] Purge Archive start");
+    $annoncesPurges = annonce::purgeArchive();
+    bii_custom_log("[INFO BII_CRON] Purge Archive end");
+    
+    $subject = utf8_decode(get_bloginfo("name") . "import des données : Purge image Archives");
+	$message = "Images supprimé\n\r".implode('\n\r', $annoncesPurges);
+    mail("web@groupejador.fr", $subject, $message);
+    
 }
 
 function bii_ajax_delete_doublons_mail() {
@@ -161,7 +168,7 @@ function bii_ajax_reload() {
 
 function bii_ajax_reload_pictures() {
     bii_custom_log("[INFO BII_CRON] Reload pictures start");
-    $subject = utf8_decode(get_bloginfo("name") . " Reload pictures");
+    $subject = utf8_decode(get_bloginfo("name") . "import des données : Reload pictures");
 	$message = "";
     $liste_reload = annonce::liste_reload();
     
@@ -252,3 +259,20 @@ register_activation_hook(__FILE__, 'bii_cron_5');
 
 register_deactivation_hook(__FILE__, 'bii_cron_delete_doublons');
 register_activation_hook(__FILE__, 'bii_cron_delete_doublons');
+
+function bii_unregister_newsletter() {
+    if (! is_admin() && !empty($_REQUEST['unregister_newsletter']) && strlen($_REQUEST['unregister_newsletter']) == 44) {
+        users::unregister_newsletter($_REQUEST['unregister_newsletter']);
+    }
+}
+add_action('init', 'bii_unregister_newsletter');
+
+
+function bii_redirect_member() {
+    
+    if ('/membres/' == $_SERVER['REQUEST_URI']) {
+        wp_redirect(get_home_url());
+        exit;
+    }
+}
+add_action('init', 'bii_redirect_member');

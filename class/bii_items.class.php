@@ -81,7 +81,7 @@ class bii_items extends global_class {
 //				echo " index $i Memory ".(memory_get_peak_usage() / 1024 / 1024)." MB";
 				$liste_identifiant[] = $item->reference;
 				$id_xml = get_object_vars($item)["@attributes"]["id"];
-				//if($item->reference == "310825"){
+				//if($item->reference == "310076"){
 				if ($i >= $start && $i < $stop) {
 					foreach ($arrayClasses as $classe) {
 //						echo "<h2>Insert $classe</h2>";

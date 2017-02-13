@@ -55,7 +55,8 @@ function bii_showlogs() {
 		var bloginfourl = '<?= get_bloginfo("url") ?>';
 		var bii_showlogs = false;
 		var ip_client = myip;
-		if (ip_client == "<?= get_option("bii_ipallowed"); ?>") {
+        var ipAllowed = "<?= get_option("bii_ipallowed"); ?>";
+		if (jQuery.inArray(myip, ipAllowed.split(','))) {
 			bii_showlogs = true;
 		}
 		var bii_medium = "(max-width: <?= get_option("bii_medium_width"); ?>px";
@@ -76,7 +77,9 @@ add_action("bii_informations", function() {
 });
 
 function bii_canshow_debug() {
-	return $_SERVER["REMOTE_ADDR"] == get_option("bii_ipallowed");
+    //var_dump($_SERVER["REMOTE_ADDR"]);
+    $ipAllowed = explode(',', get_option("bii_ipallowed"));
+	return in_array($_SERVER["REMOTE_ADDR"], $ipAllowed) ;
 }
 
 /* Retirer emojis */
